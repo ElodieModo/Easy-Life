@@ -19,8 +19,17 @@ jobs:
             exit 1
           fi
 
-          curl --fail --show-error --silent \
+          http_code=$(curl --silent --show-error --output /tmp/hourly-sync-response.txt --write-out "%{http_code}" \
             -X POST "$CALENDAR_SYNC_URL" \
             -H "Authorization: Bearer $CALENDAR_SYNC_TOKEN" \
             -H "Content-Type: application/json" \
-            -d '{"force": false}'
+            -d '{"force": false}')
+
+          echo "Hourly sync HTTP status: $http_code"
+
+          if [[ "$http_code" -lt 200 || "$http_code" -ge 300 ]]; then
+            echo "Unexpected HTTP status from calendar sync endpoint: $http_code"
+            echo "Response body:"
+            cat /tmp/hourly-sync-response.txt
+            exit 1
+          fi
