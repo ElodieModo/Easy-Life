@@ -50,6 +50,12 @@ export function Navbar() {
               Liste de courses
             </Link>
             <Link
+              href="/protected/menu-semaine"
+              className="hover:text-rose-700 transition-colors"
+            >
+              Menu de la semaine
+            </Link>
+            <Link
               href="/protected/planning-enfants"
               className="hover:text-sky-700 transition-colors"
             >

@@ -104,6 +104,21 @@ create table if not exists public.family_child_planning_events (
   check (end_at > start_at)
 );
 
+create table if not exists public.family_weekly_menu_items (
+  id uuid primary key default gen_random_uuid(),
+  family_id uuid not null references public.families(id) on delete cascade,
+  week_start_date date not null,
+  day_of_week smallint not null check (day_of_week between 0 and 6),
+  meal_slot text not null check (meal_slot in ('petit-dejeuner', 'dejeuner', 'gouter', 'diner')),
+  title text not null,
+  notes text,
+  ingredients text,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (family_id, week_start_date, day_of_week, meal_slot)
+);
+
 alter table public.shopping_items
   add column if not exists list_id uuid references public.shopping_lists(id) on delete cascade;
 
@@ -141,6 +156,8 @@ create index if not exists idx_family_children_family_id on public.family_childr
 create index if not exists idx_family_child_planning_events_family_id on public.family_child_planning_events(family_id);
 create index if not exists idx_family_child_planning_events_child_id on public.family_child_planning_events(child_id);
 create index if not exists idx_family_child_planning_events_start_at on public.family_child_planning_events(start_at);
+create index if not exists idx_family_weekly_menu_items_family_id on public.family_weekly_menu_items(family_id);
+create index if not exists idx_family_weekly_menu_items_week_start_date on public.family_weekly_menu_items(week_start_date);
 
 create or replace function public.is_family_member(target_family_id uuid)
 returns boolean
@@ -327,6 +344,7 @@ alter table public.family_calendar_connections enable row level security;
 alter table public.family_calendar_events enable row level security;
 alter table public.family_children enable row level security;
 alter table public.family_child_planning_events enable row level security;
+alter table public.family_weekly_menu_items enable row level security;
 
 create policy "Family members can read families"
 on public.families
@@ -583,6 +601,27 @@ with check (
 
 create policy "Family members can delete child planning events"
 on public.family_child_planning_events
+for delete
+using (public.is_family_member(family_id));
+
+create policy "Family members can read weekly menu items"
+on public.family_weekly_menu_items
+for select
+using (public.is_family_member(family_id));
+
+create policy "Family members can insert weekly menu items"
+on public.family_weekly_menu_items
+for insert
+with check (public.is_family_member(family_id) and auth.uid() = created_by);
+
+create policy "Family members can update weekly menu items"
+on public.family_weekly_menu_items
+for update
+using (public.is_family_member(family_id))
+with check (public.is_family_member(family_id));
+
+create policy "Family members can delete weekly menu items"
+on public.family_weekly_menu_items
 for delete
 using (public.is_family_member(family_id));
 
