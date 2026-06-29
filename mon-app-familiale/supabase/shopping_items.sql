@@ -1,0 +1,4 @@
+-- Deprecated script.
+-- Use supabase/family_schema.sql as the single source of truth.
+-- It now includes families, members, invites, shopping_lists and shopping_items.
+-- For existing databases, run supabase/migration_add_shopping_lists.sql.
