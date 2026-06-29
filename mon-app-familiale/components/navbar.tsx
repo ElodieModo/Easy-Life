@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -28,6 +29,14 @@ export function Navbar() {
         <div className="grid grid-cols-[auto_1fr_auto] items-center py-3 gap-4">
           <div className="justify-self-start">
             <Link href="/" aria-label="Easy Life" className="group flex items-center gap-2">
+              <Image
+                src="/easy-life-logo.svg"
+                alt="Logo Easy Life"
+                width={36}
+                height={36}
+                className="h-9 w-9 rounded-xl shadow-sm"
+                priority
+              />
               <span className="inline-flex items-center whitespace-nowrap rounded-full px-4 py-1 text-sm md:text-base font-black tracking-wide text-white bg-gradient-to-r from-rose-600 via-fuchsia-500 to-orange-500 shadow-sm">
                 EASY LIFE
               </span>

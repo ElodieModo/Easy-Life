@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/navbar";
 import { Suspense } from "react";
@@ -69,6 +70,14 @@ function GuestHome() {
             Organisation familiale partagée
           </p>
           <h1 className="text-5xl md:text-6xl font-extrabold leading-tight flex items-center gap-3">
+            <Image
+              src="/easy-life-logo.svg"
+              alt="Logo Easy Life"
+              width={54}
+              height={54}
+              className="h-11 w-11 md:h-14 md:w-14 rounded-2xl shadow-sm"
+              priority
+            />
             <span className="inline-flex items-center whitespace-nowrap rounded-full px-5 py-1.5 text-3xl md:text-4xl font-black tracking-wide text-white bg-gradient-to-r from-rose-600 via-fuchsia-500 to-orange-500 shadow-sm">
               EASY LIFE
             </span>
@@ -156,6 +165,14 @@ function ConnectedHome({
       <section className="bg-white/80 backdrop-blur rounded-2xl border border-rose-100 shadow-sm p-8 md:p-10">
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 flex items-center gap-3">
           <span>Bienvenue sur</span>
+          <Image
+            src="/easy-life-logo.svg"
+            alt="Logo Easy Life"
+            width={38}
+            height={38}
+            className="h-9 w-9 md:h-10 md:w-10 rounded-xl shadow-sm"
+            priority
+          />
           <span className="inline-flex items-center whitespace-nowrap rounded-full px-4 py-1 text-base md:text-lg font-black tracking-wide text-white bg-gradient-to-r from-rose-600 via-fuchsia-500 to-orange-500 shadow-sm">
             EASY LIFE
           </span>
