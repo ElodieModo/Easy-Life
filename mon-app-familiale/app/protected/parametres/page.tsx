@@ -43,9 +43,9 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100">
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+      <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-6 sm:space-y-8">
         <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-2">Paramètres</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-800 mb-2">Paramètres</h1>
           <p className="text-slate-600">
             Centralisez ici les réglages des modules de l'application. Les actions du quotidien restent dans chaque
             écran pour garder une interface simple.

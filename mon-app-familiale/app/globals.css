@@ -69,3 +69,19 @@
       radial-gradient(circle at 100% 10%, rgba(232, 219, 222, 0.32), transparent 38%);
   }
 }
+
+@media (max-width: 640px) {
+  input,
+  textarea,
+  select,
+  button,
+  a[role="button"] {
+    font-size: 16px;
+  }
+
+  button,
+  select,
+  a[role="button"] {
+    min-height: 42px;
+  }
+}
