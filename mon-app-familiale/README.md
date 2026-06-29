@@ -133,4 +133,6 @@ CALENDAR_SYNC_URL=https://your-domain/api/family-calendar/sync/hourly
 CALENDAR_SYNC_TOKEN=same_value_as_CALENDAR_SYNC_CRON_TOKEN
 ```
 
+The workflow trims surrounding whitespace from `CALENDAR_SYNC_TOKEN` and also tolerates a value copied with an accidental authorization-prefix wrapper, but the recommended value remains the raw token.
+
 4. The workflow runs hourly and can be started manually from GitHub Actions.

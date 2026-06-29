@@ -19,9 +19,16 @@ jobs:
             exit 1
           fi
 
+          normalized_calendar_sync_token="$(printf '%s' "$CALENDAR_SYNC_TOKEN" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g; s/^[Bb]earer[[:space:]]+//')"
+
+          if [[ -z "$normalized_calendar_sync_token" ]]; then
+            echo "CALENDAR_SYNC_TOKEN secret is empty after normalization"
+            exit 1
+          fi
+
           http_code=$(curl --silent --show-error --output /tmp/hourly-sync-response.txt --write-out "%{http_code}" \
             -X POST "$CALENDAR_SYNC_URL" \
-            -H "Authorization: Bearer $CALENDAR_SYNC_TOKEN" \
+            -H "Authorization: Bearer $normalized_calendar_sync_token" \
             -H "Content-Type: application/json" \
             -d '{"force": false}')
 
