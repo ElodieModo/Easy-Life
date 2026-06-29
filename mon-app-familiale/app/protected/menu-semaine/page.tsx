@@ -37,16 +37,10 @@ type MenuDraft = {
   ingredients: string;
 };
 
-type MealSlot = "petit-dejeuner" | "dejeuner" | "gouter" | "diner";
+type MealSlot = "diner";
 
 const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
-
-const SLOTS: Array<{ key: MealSlot; label: string; icon: string }> = [
-  { key: "petit-dejeuner", label: "Petit-déjeuner", icon: "🥐" },
-  { key: "dejeuner", label: "Déjeuner", icon: "🍱" },
-  { key: "gouter", label: "Goûter", icon: "🍎" },
-  { key: "diner", label: "Dîner", icon: "🍲" },
-];
+const DINNER_SLOT: MealSlot = "diner";
 
 const slotKey = (dayOfWeek: number, mealSlot: MealSlot) => `${dayOfWeek}-${mealSlot}`;
 
@@ -100,6 +94,7 @@ const extractIngredients = (input: string) =>
 
 export default function WeeklyMenuPage() {
   const supabase = useMemo(() => createClient(), []);
+  const defaultOpenDay = (new Date().getDay() + 6) % 7;
 
   const [userId, setUserId] = useState<string | null>(null);
   const [family, setFamily] = useState<FamilyInfo | null>(null);
@@ -113,6 +108,7 @@ export default function WeeklyMenuPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [openDayIndex, setOpenDayIndex] = useState<number>(defaultOpenDay);
 
   const weekLabel = useMemo(() => getWeekLabel(weekStartDate), [weekStartDate]);
 
@@ -226,6 +222,7 @@ export default function WeeklyMenuPage() {
       .select("id, day_of_week, meal_slot, title, notes, ingredients")
       .eq("family_id", family.id)
       .eq("week_start_date", weekStartDate)
+      .eq("meal_slot", DINNER_SLOT)
       .order("day_of_week", { ascending: true });
 
     if (error) {
@@ -265,7 +262,8 @@ export default function WeeklyMenuPage() {
     void loadWeekRows();
   }, [family, weekStartDate]);
 
-  const updateDraft = (dayOfWeek: number, mealSlot: MealSlot, patch: Partial<MenuDraft>) => {
+  const updateDraft = (dayOfWeek: number, patch: Partial<MenuDraft>) => {
+    const mealSlot = DINNER_SLOT;
     const key = slotKey(dayOfWeek, mealSlot);
     setDraftsByKey((previous) => {
       const current =
@@ -286,10 +284,12 @@ export default function WeeklyMenuPage() {
     });
   };
 
-  const saveSlot = async (dayOfWeek: number, mealSlot: MealSlot) => {
+  const saveSlot = async (dayOfWeek: number) => {
     if (!family || !userId) {
       return;
     }
+
+    const mealSlot = DINNER_SLOT;
 
     const key = slotKey(dayOfWeek, mealSlot);
     const existing = rowsByKey[key];
@@ -315,7 +315,7 @@ export default function WeeklyMenuPage() {
         .eq("family_id", family.id);
 
       if (error) {
-        setErrorMessage("Impossible de supprimer ce créneau repas.");
+        setErrorMessage("Impossible de supprimer ce dîner.");
         setIsSaving(false);
         return;
       }
@@ -332,13 +332,13 @@ export default function WeeklyMenuPage() {
         return next;
       });
 
-      setMessage("Créneau supprimé.");
+      setMessage("Dîner supprimé.");
       setIsSaving(false);
       return;
     }
 
     if (!cleanTitle) {
-      setErrorMessage("Ajoutez au moins un nom de plat avant d'enregistrer.");
+      setErrorMessage("Ajoutez au moins un nom de dîner avant d'enregistrer.");
       setIsSaving(false);
       return;
     }
@@ -362,7 +362,7 @@ export default function WeeklyMenuPage() {
       .single();
 
     if (error || !data) {
-      setErrorMessage("Impossible d'enregistrer ce créneau repas.");
+      setErrorMessage("Impossible d'enregistrer ce dîner.");
       setIsSaving(false);
       return;
     }
@@ -382,7 +382,7 @@ export default function WeeklyMenuPage() {
       },
     }));
 
-    setMessage("Créneau enregistré.");
+    setMessage("Dîner enregistré.");
     setIsSaving(false);
   };
 
@@ -499,48 +499,48 @@ export default function WeeklyMenuPage() {
     <main className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100 text-slate-800">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-        <section className="bg-white/85 rounded-2xl border border-rose-100 shadow-sm p-6 md:p-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-4 sm:space-y-6">
+        <section className="bg-white/85 rounded-2xl border border-rose-100 shadow-sm p-4 sm:p-6 md:p-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800">Menu de la semaine</h1>
-              <p className="mt-2 text-slate-600">
-                Planifiez tous les repas, ajoutez les ingrédients et exportez-les vers vos courses.
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800">Menu de la semaine</h1>
+              <p className="mt-1.5 sm:mt-2 text-sm sm:text-base text-slate-600">
+                Planifiez les dîners de la semaine, ajoutez les ingrédients et exportez-les vers vos courses.
               </p>
             </div>
             <Link
               href="/protected/liste-courses"
-              className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
+              className="w-full sm:w-auto text-center text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
             >
               Ouvrir les courses
             </Link>
           </div>
 
           <div className="mt-6 grid lg:grid-cols-[1fr_auto] gap-4 items-start">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => shiftWeek(-7)}
-                className="bg-white hover:bg-slate-50 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
+                className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
               >
                 Semaine précédente
               </button>
               <button
                 type="button"
                 onClick={() => setWeekStartDate(toDateKey(getMonday(new Date())))}
-                className="bg-white hover:bg-slate-50 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
+                className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
               >
                 Semaine actuelle
               </button>
               <button
                 type="button"
                 onClick={() => shiftWeek(7)}
-                className="bg-white hover:bg-slate-50 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
+                className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
               >
                 Semaine suivante
               </button>
 
-              <span className="ml-1 inline-flex items-center rounded-full bg-rose-100 text-rose-700 px-3 py-1 text-sm font-semibold">
+              <span className="inline-flex items-center justify-center rounded-full bg-rose-100 text-rose-700 px-3 py-1 text-sm font-semibold">
                 {weekLabel}
               </span>
             </div>
@@ -549,22 +549,22 @@ export default function WeeklyMenuPage() {
               <p>
                 Famille: <span className="font-semibold text-slate-800">{family?.name ?? "-"}</span>
               </p>
-              <p className="mt-1">Créneaux remplis: {filledSlotsCount}/28</p>
+              <p className="mt-1">Dîners remplis: {filledSlotsCount}/7</p>
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="mt-4 grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={duplicateToNextWeek}
               disabled={isSaving || isLoading || !family}
-              className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Copier vers la semaine suivante
             </button>
             <Link
               href="/protected/parametres"
-              className="text-sm bg-white hover:bg-slate-50 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
+              className="w-full sm:w-auto text-center text-sm bg-white hover:bg-slate-50 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
             >
               Paramètres
             </Link>
@@ -579,13 +579,21 @@ export default function WeeklyMenuPage() {
           <section className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-emerald-700">{message}</section>
         ) : null}
 
-        <section className="grid lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        <section className="grid lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
           {DAYS.map((dayLabel, dayIndex) => (
-            <article key={dayLabel} className="bg-white/85 rounded-xl border border-slate-200 p-4 shadow-sm space-y-3">
-              <h2 className="font-bold text-slate-800">{dayLabel}</h2>
+            <article key={dayLabel} className="bg-white/85 rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm space-y-3">
+              <button
+                type="button"
+                onClick={() => setOpenDayIndex((previous) => (previous === dayIndex ? -1 : dayIndex))}
+                className="w-full flex items-center justify-between text-left sm:cursor-default"
+              >
+                <h2 className="font-bold text-slate-800">{dayLabel}</h2>
+                <span className="sm:hidden text-slate-500 text-sm">{openDayIndex === dayIndex ? "Masquer" : "Ouvrir"}</span>
+              </button>
 
-              {SLOTS.map((slot) => {
-                const key = slotKey(dayIndex, slot.key);
+              <div className={`${openDayIndex === dayIndex ? "block" : "hidden"} sm:block`}>
+                {(() => {
+                const key = slotKey(dayIndex, DINNER_SLOT);
                 const draft =
                   draftsByKey[key] ??
                   ({
@@ -595,46 +603,38 @@ export default function WeeklyMenuPage() {
                   } as MenuDraft);
 
                 return (
-                  <div key={slot.key} className="rounded-lg border border-slate-200 p-3 bg-slate-50/60">
-                    <p className="text-sm font-semibold text-slate-700 mb-2">
-                      {slot.icon} {slot.label}
-                    </p>
+                  <div className="rounded-lg border border-slate-200 p-3 bg-slate-50/60">
+                    <p className="text-sm font-semibold text-slate-700 mb-2">🍲 Dîner</p>
 
                     <input
                       type="text"
                       value={draft.title}
-                      onChange={(event) => updateDraft(dayIndex, slot.key, { title: event.target.value })}
-                      placeholder="Nom du repas"
+                      onChange={(event) => updateDraft(dayIndex, { title: event.target.value })}
+                      placeholder="Nom du dîner"
                       className="w-full rounded border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-300"
                     />
 
                     <textarea
                       value={draft.notes}
-                      onChange={(event) => updateDraft(dayIndex, slot.key, { notes: event.target.value })}
+                      onChange={(event) => updateDraft(dayIndex, { notes: event.target.value })}
                       placeholder="Notes (préparation, timing, allergies...)"
-                      className="mt-2 w-full rounded border border-slate-300 px-3 py-2 text-sm text-slate-800 min-h-[72px] focus:outline-none focus:ring-2 focus:ring-rose-300"
-                    />
-
-                    <textarea
-                      value={draft.ingredients}
-                      onChange={(event) => updateDraft(dayIndex, slot.key, { ingredients: event.target.value })}
-                      placeholder="Ingrédients (séparés par virgules ou retours à la ligne)"
                       className="mt-2 w-full rounded border border-slate-300 px-3 py-2 text-sm text-slate-800 min-h-[72px] focus:outline-none focus:ring-2 focus:ring-rose-300"
                     />
 
                     <div className="mt-2 flex items-center justify-end gap-2">
                       <button
                         type="button"
-                        onClick={() => saveSlot(dayIndex, slot.key)}
+                        onClick={() => saveSlot(dayIndex)}
                         disabled={isSaving || isLoading || !family}
-                        className="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 sm:py-1.5 rounded text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Enregistrer
                       </button>
                     </div>
                   </div>
                 );
-              })}
+                })()}
+              </div>
             </article>
           ))}
         </section>
@@ -651,7 +651,7 @@ export default function WeeklyMenuPage() {
           </div>
 
           {allIngredients.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-600">Ajoutez des ingrédients dans vos créneaux repas pour les retrouver ici.</p>
+            <p className="mt-3 text-sm text-slate-600">Ajoutez des ingrédients dans vos dîners pour les retrouver ici.</p>
           ) : (
             <div className="mt-3 flex flex-wrap gap-2">
               {allIngredients.map((ingredient) => (

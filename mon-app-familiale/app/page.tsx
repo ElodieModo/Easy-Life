@@ -272,8 +272,8 @@ function ConnectedHome({
 
         <article className="bg-white/80 rounded-xl border border-rose-100 p-5 shadow-sm">
           <p className="text-sm text-slate-500">Menu de la semaine</p>
-          <p className="mt-1 text-3xl font-bold text-slate-800">{summary.weeklyMenuFilledSlots}/28</p>
-          <p className="text-sm text-slate-600 mt-2">Créneaux repas renseignés pour la semaine en cours</p>
+          <p className="mt-1 text-3xl font-bold text-slate-800">{summary.weeklyMenuFilledSlots}/7</p>
+          <p className="text-sm text-slate-600 mt-2">Dîners renseignés pour la semaine en cours</p>
           <Link
             href="/protected/menu-semaine"
             className="inline-flex mt-4 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded transition-colors"
@@ -383,6 +383,7 @@ async function PageContent() {
           .from("family_weekly_menu_items")
           .select("id", { count: "exact", head: true })
           .eq("family_id", familyId)
+          .eq("meal_slot", "diner")
           .eq("week_start_date", mondayKey),
       ]);
 
