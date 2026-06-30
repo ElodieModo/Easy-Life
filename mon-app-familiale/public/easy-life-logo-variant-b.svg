@@ -1,0 +1,18 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgB" x1="8" y1="8" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22C55E"/>
+      <stop offset="0.5" stop-color="#14B8A6"/>
+      <stop offset="1" stop-color="#38BDF8"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="30" fill="url(#bgB)"/>
+  <circle cx="93" cy="33" r="9" fill="#FEF08A"/>
+  <path d="M25 64L64 33L103 64" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M33 64L64 39L95 64V95C95 98.9 91.9 102 88 102H40C36.1 102 33 98.9 33 95V64Z" fill="rgba(255,255,255,0.95)"/>
+  <circle cx="50" cy="74" r="5" fill="#0EA5E9"/>
+  <circle cx="64" cy="70" r="6" fill="#06B6D4"/>
+  <circle cx="78" cy="74" r="5" fill="#0EA5E9"/>
+  <path d="M48 88C51.8 91.6 56.8 93.8 64 93.8C71.2 93.8 76.2 91.6 80 88" stroke="#0F766E" stroke-width="5" stroke-linecap="round"/>
+  <path d="M64 98C59.7 94.3 53 90.7 53 85C53 80.9 56.2 77.8 60.2 77.8C61.9 77.8 63.4 78.4 64 79.8C64.7 78.4 66.1 77.8 67.8 77.8C71.8 77.8 75 80.9 75 85C75 90.7 68.3 94.3 64 98Z" fill="#EF4444"/>
+</svg>

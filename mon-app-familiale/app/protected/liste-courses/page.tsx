@@ -3,7 +3,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 
 type ShoppingItem = {
   id: string;
@@ -19,17 +18,23 @@ type ShoppingList = {
   createdAt: string;
 };
 
-const sortListsWithPriority = (lists: ShoppingList[], priorityListId: string | null) => {
-  if (!priorityListId) {
+const sortListsByStoredOrder = (lists: ShoppingList[], orderedIds: string[]) => {
+  if (orderedIds.length === 0) {
     return lists;
   }
 
-  const priorityList = lists.find((list) => list.id === priorityListId);
-  if (!priorityList) {
-    return lists;
+  const mapById = new Map(lists.map((list) => [list.id, list]));
+  const orderedLists: ShoppingList[] = [];
+
+  for (const id of orderedIds) {
+    const list = mapById.get(id);
+    if (list) {
+      orderedLists.push(list);
+      mapById.delete(id);
+    }
   }
 
-  return [priorityList, ...lists.filter((list) => list.id !== priorityListId)];
+  return [...orderedLists, ...Array.from(mapById.values())];
 };
 
 const normalizeListName = (name: string) =>
@@ -73,6 +78,9 @@ const parseFamily = (value: FamilyPayload): FamilyInfo | null => {
   return value;
 };
 
+const getListOrderStorageKey = (currentUserId: string, familyId: string) =>
+  `shopping-list-order:${currentUserId}:${familyId}`;
+
 export default function ShoppingListPage() {
   const supabase = useMemo(() => createClient(), []);
   const [items, setItems] = useState<ShoppingItem[]>([]);
@@ -86,8 +94,16 @@ export default function ShoppingListPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isCreatingList, setIsCreatingList] = useState(false);
-  const [priorityListId, setPriorityListId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const persistListOrder = (orderedLists: ShoppingList[], currentUserId: string, familyId: string) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const storageKey = getListOrderStorageKey(currentUserId, familyId);
+    window.localStorage.setItem(storageKey, JSON.stringify(orderedLists.map((list) => list.id)));
+  };
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -151,7 +167,7 @@ export default function ShoppingListPage() {
       setFamily(activeFamily);
 
       if (!activeFamily) {
-        setErrorMessage("Aucune famille active. Créez ou rejoignez une famille dans l'onglet Ma famille.");
+        setErrorMessage("Aucune famille active. Créez ou rejoignez une famille dans Paramètres > Ma famille.");
         setItems([]);
         setLists([]);
         setSelectedListId(null);
@@ -203,24 +219,29 @@ export default function ShoppingListPage() {
         ];
       }
 
-      const storageKey = `shopping-priority-list:${user.id}:${activeFamily.id}`;
-      const storedPriorityId =
-        typeof window !== "undefined" ? window.localStorage.getItem(storageKey) : null;
-
-      const validatedPriorityId =
-        storedPriorityId && availableLists.some((list) => list.id === storedPriorityId) ? storedPriorityId : null;
-
-      const orderedLists = sortListsWithPriority(availableLists, validatedPriorityId);
+      const storageKey = getListOrderStorageKey(user.id, activeFamily.id);
+      let storedOrderIds: string[] = [];
 
       if (typeof window !== "undefined") {
-        if (validatedPriorityId) {
-          window.localStorage.setItem(storageKey, validatedPriorityId);
-        } else {
-          window.localStorage.removeItem(storageKey);
+        const rawValue = window.localStorage.getItem(storageKey);
+        if (rawValue) {
+          try {
+            const parsed = JSON.parse(rawValue) as unknown;
+            if (Array.isArray(parsed)) {
+              storedOrderIds = parsed.filter((value): value is string => typeof value === "string");
+            }
+          } catch {
+            storedOrderIds = [];
+          }
         }
       }
 
-      setPriorityListId(validatedPriorityId);
+      const orderedLists = sortListsByStoredOrder(availableLists, storedOrderIds);
+
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(storageKey, JSON.stringify(orderedLists.map((list) => list.id)));
+      }
+
       setLists(orderedLists);
       setSelectedListId((previous) => {
         if (previous && orderedLists.some((list) => list.id === previous)) {
@@ -436,58 +457,67 @@ export default function ShoppingListPage() {
       createdAt: data.created_at,
     };
 
-    setLists((previous) => sortListsWithPriority([...previous, createdList], priorityListId));
+    setLists((previous) => {
+      const nextLists = [...previous, createdList];
+      if (userId && family) {
+        persistListOrder(nextLists, userId, family.id);
+      }
+      return nextLists;
+    });
     setSelectedListId(createdList.id);
     setNewListName("");
     setIsCreatingList(false);
   };
 
-  const handleSetPriorityList = () => {
+  const handleMoveSelectedList = (direction: "up" | "down") => {
     if (!selectedListId || !userId || !family) {
       return;
     }
 
-    const storageKey = `shopping-priority-list:${userId}:${family.id}`;
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(storageKey, selectedListId);
-    }
+    setLists((previous) => {
+      const currentIndex = previous.findIndex((list) => list.id === selectedListId);
+      if (currentIndex < 0) {
+        return previous;
+      }
 
-    setPriorityListId(selectedListId);
-    setLists((previous) => sortListsWithPriority(previous, selectedListId));
+      const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+      if (targetIndex < 0 || targetIndex >= previous.length) {
+        return previous;
+      }
+
+      const nextLists = [...previous];
+      const [movedList] = nextLists.splice(currentIndex, 1);
+      nextLists.splice(targetIndex, 0, movedList);
+      persistListOrder(nextLists, userId, family.id);
+      return nextLists;
+    });
   };
 
+  const selectedListIndex = selectedListId ? lists.findIndex((list) => list.id === selectedListId) : -1;
+  const canMoveUp = selectedListIndex > 0;
+  const canMoveDown = selectedListIndex >= 0 && selectedListIndex < lists.length - 1;
+
   const selectedListName = lists.find((list) => list.id === selectedListId)?.name ?? "Aucune";
+
+  const summaryText = `${family ? `Famille active: ${family.name}` : "Famille active: Aucune"} · Liste active: ${selectedListName} · ${completedCount} / ${items.length} article${items.length > 1 ? "s" : ""} acheté${completedCount > 1 ? "s" : ""}`;
+
+  const handleSaveCurrentOrder = () => {
+    if (!userId || !family) {
+      return;
+    }
+    persistListOrder(lists, userId, family.id);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100">
       <Navbar />
 
       <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12">
-        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8 mb-8">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-            <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">🛒 Liste de courses</h1>
-            <Link
-              href="/protected/parametres"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded font-medium transition-colors"
-            >
-              Paramètres
-            </Link>
-          </div>
-          <p className="text-slate-600">
-            Organisez vos achats en famille. Cochez les produits déjà pris pour garder une vue claire.
-          </p>
-          <p className="text-sm text-slate-500 mt-2">
-            Famille active: {family ? family.name : "Aucune"}
-          </p>
-          <p className="text-sm text-slate-500 mt-1">Liste active: {selectedListName}</p>
-          <p className="text-sm text-slate-500 mt-3">
-            {completedCount} / {items.length} article{items.length > 1 ? "s" : ""} acheté
-            {completedCount > 1 ? "s" : ""}
-          </p>
+        <div className="mb-8 space-y-3">
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">🛒 Liste de courses</h1>
+          <p className="text-sm text-slate-500">{summaryText}</p>
           {errorMessage ? (
-            <p className="mt-3 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded p-3">
-              {errorMessage}
-            </p>
+            <p className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded p-3">{errorMessage}</p>
           ) : null}
         </div>
 
@@ -510,14 +540,36 @@ export default function ShoppingListPage() {
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
-                onClick={handleSetPriorityList}
-                disabled={!selectedListId || !userId || !family || selectedListId === priorityListId}
-                className="w-full sm:w-auto text-sm bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
-              >
-                {selectedListId === priorityListId ? "Déjà en premier" : "Mettre en premier"}
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleMoveSelectedList("up")}
+                  disabled={!canMoveUp}
+                  aria-label="Monter la liste"
+                  title="Monter"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded bg-amber-500 text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMoveSelectedList("down")}
+                  disabled={!canMoveDown}
+                  aria-label="Descendre la liste"
+                  title="Descendre"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded bg-amber-500 text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveCurrentOrder}
+                  disabled={!userId || !family || lists.length === 0}
+                  className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
+                >
+                  Enregistrer l'ordre
+                </button>
+              </div>
             </div>
 
             <form onSubmit={handleCreateList} className="sm:col-span-3 grid sm:grid-cols-3 gap-3">

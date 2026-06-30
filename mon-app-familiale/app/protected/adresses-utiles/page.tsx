@@ -3,7 +3,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 
 type FamilyInfo = {
   id: string;
@@ -239,27 +238,45 @@ export default function UsefulAddressesPage() {
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-6 sm:space-y-8">
-        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-            <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">Adresses utiles</h1>
-            <Link
-              href="/protected/parametres"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded font-medium transition-colors"
-            >
-              Paramètres
-            </Link>
-          </div>
-          <p className="text-slate-600">
-            Base d'adresses partagee au niveau famille (maison, ecole, travail) avec un espace notes pour chaque
-            entree.
-          </p>
-          <p className="text-sm text-slate-500 mt-2">Famille active: {family ? family.name : "Aucune"}</p>
+        <div className="space-y-3">
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">Adresses utiles</h1>
           {message ? (
-            <p className="mt-3 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded p-3">{message}</p>
+            <p className="text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded p-3">{message}</p>
           ) : null}
           {errorMessage ? (
-            <p className="mt-3 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded p-3">{errorMessage}</p>
+            <p className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded p-3">{errorMessage}</p>
           ) : null}
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-bold text-slate-800 mb-4">Base d'adresses de la famille</h2>
+          {isLoading ? (
+            <p className="text-slate-500">Chargement des adresses...</p>
+          ) : addresses.length === 0 ? (
+            <p className="text-slate-500">Aucune adresse pour le moment.</p>
+          ) : (
+            <ul className="space-y-3">
+              {addresses.map((entry) => (
+                <li key={entry.id} className="border border-slate-200 rounded-lg p-4 bg-slate-50">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-rose-700">{categoryLabel[entry.category]}</p>
+                      <p className="text-lg font-semibold text-slate-800">{entry.label}</p>
+                      <p className="text-slate-700">{entry.address}</p>
+                      {entry.notes ? <p className="text-sm text-slate-600 mt-2">Notes: {entry.notes}</p> : null}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void handleDeleteAddress(entry.id)}
+                      className="text-xs bg-rose-100 text-rose-700 hover:bg-rose-200 px-2 py-1 rounded"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -304,37 +321,6 @@ export default function UsefulAddressesPage() {
               {isSaving ? "Ajout..." : "Ajouter cette adresse"}
             </button>
           </form>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-slate-800 mb-4">Base d'adresses de la famille</h2>
-          {isLoading ? (
-            <p className="text-slate-500">Chargement des adresses...</p>
-          ) : addresses.length === 0 ? (
-            <p className="text-slate-500">Aucune adresse pour le moment.</p>
-          ) : (
-            <ul className="space-y-3">
-              {addresses.map((entry) => (
-                <li key={entry.id} className="border border-slate-200 rounded-lg p-4 bg-slate-50">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-rose-700">{categoryLabel[entry.category]}</p>
-                      <p className="text-lg font-semibold text-slate-800">{entry.label}</p>
-                      <p className="text-slate-700">{entry.address}</p>
-                      {entry.notes ? <p className="text-sm text-slate-600 mt-2">Notes: {entry.notes}</p> : null}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => void handleDeleteAddress(entry.id)}
-                      className="text-xs bg-rose-100 text-rose-700 hover:bg-rose-200 px-2 py-1 rounded"
-                    >
-                      Supprimer
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
       </div>
     </div>

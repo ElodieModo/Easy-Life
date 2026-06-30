@@ -188,7 +188,7 @@ export default function WeeklyMenuPage() {
     setFamily(activeFamily);
 
     if (!activeFamily) {
-      setErrorMessage("Aucune famille active. Créez ou rejoignez une famille dans l'onglet Ma famille.");
+      setErrorMessage("Aucune famille active. Créez ou rejoignez une famille dans Paramètres > Ma famille.");
       setIsLoading(false);
       return;
     }
