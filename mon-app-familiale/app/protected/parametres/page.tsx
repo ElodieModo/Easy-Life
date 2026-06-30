@@ -5,11 +5,16 @@ import { Navbar } from "@/components/navbar";
 
 const settingsItems = [
   {
-    title: "Calendrier partagé",
-    description:
-      "Configurer l'URL iCal, déclencher la synchronisation et choisir la vue (liste, mois, semaine).",
-    href: "/protected/parametres/calendrier-partage",
-    cta: "Configurer le module",
+    title: "Liste de courses",
+    description: "Créer, renommer et sélectionner les listes utilisées par la famille.",
+    href: "/protected/liste-courses",
+    cta: "Ouvrir le module",
+  },
+  {
+    title: "Menu de la semaine",
+    description: "Préparer les repas de la semaine et partager une vue claire pour toute la famille.",
+    href: "/protected/menu-semaine",
+    cta: "Ouvrir le module",
   },
   {
     title: "Planning enfants",
@@ -19,21 +24,22 @@ const settingsItems = [
     cta: "Configurer le module",
   },
   {
+    title: "Calendrier partagé",
+    description:
+      "Configurer l'URL iCal, déclencher la synchronisation et choisir la vue (liste, mois, semaine).",
+    href: "/protected/parametres/calendrier-partage",
+    cta: "Configurer le module",
+  },
+  {
     title: "Adresses utiles",
     description: "Gérer les catégories d'adresses, notes et entrées partagées pour la famille.",
     href: "/protected/adresses-utiles",
     cta: "Ouvrir le module",
   },
   {
-    title: "Liste de courses",
-    description: "Créer, renommer et sélectionner les listes utilisées par la famille.",
-    href: "/protected/liste-courses",
-    cta: "Ouvrir le module",
-  },
-  {
-    title: "Famille",
+    title: "Gestion famille",
     description: "Gérer les membres, invitations et informations de la famille active.",
-    href: "/protected/famille",
+    href: "/protected/parametres/ma-famille",
     cta: "Ouvrir le module",
   },
 ];

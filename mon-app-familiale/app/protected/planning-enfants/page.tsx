@@ -722,79 +722,17 @@ export default function ChildrenPlanningPage() {
     <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100">
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-6 sm:space-y-8">
-        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-            <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">Planning des enfants</h1>
-            <Link
-              href="/protected/parametres"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded font-medium transition-colors"
-            >
-              Paramètres
-            </Link>
-          </div>
-          <p className="text-slate-600">
-            Organisez les activités de vos enfants en famille. Cet espace est partagé automatiquement entre tous les
-            membres de la même famille.
-          </p>
-          <p className="text-sm text-slate-500 mt-2">Famille active: {family ? family.name : "Aucune"}</p>
-          <p className="text-sm text-slate-500 mt-1">Limite: 3 enfants maximum par famille.</p>
-          <p className="text-sm text-slate-500 mt-1">Planning fixe: les activités se répètent chaque semaine.</p>
-          {message ? (
-            <p className="mt-3 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded p-3">{message}</p>
-          ) : null}
-          {errorMessage ? (
-            <p className="mt-3 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded p-3">{errorMessage}</p>
-          ) : null}
-        </div>
+      <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 flex flex-col gap-6 sm:gap-8">
+        <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">Planning des enfants</h1>
 
-        <div className="grid md:grid-cols-[0.8fr_1.6fr] gap-6">
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-5">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-              <h2 className="text-lg font-semibold text-slate-800">Enfants de la famille</h2>
-              <Link
-                href="/protected/parametres/planning-enfants"
-                className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded font-medium transition-colors"
-              >
-                Gérer dans Paramètres
-              </Link>
-            </div>
-            <p className="text-sm text-slate-600 mb-3">
-              L'ajout et la modification des enfants se font uniquement dans les paramètres de cette section.
-            </p>
+        {message ? (
+          <p className="text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded p-3">{message}</p>
+        ) : null}
+        {errorMessage ? (
+          <p className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded p-3">{errorMessage}</p>
+        ) : null}
 
-            <div className="mt-5 space-y-2">
-              {children.length === 0 ? (
-                <p className="text-sm text-slate-500">Aucun enfant enregistré.</p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {children.map((child) => {
-                    const isActive = planningChildFilter === child.id;
-                    return (
-                      <button
-                        key={child.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedChildId(child.id);
-                          setPlanningChildFilter(child.id);
-                        }}
-                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors ${
-                          isActive
-                            ? "border-rose-400 bg-rose-50 text-rose-700"
-                            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                        }`}
-                      >
-                        <span className="h-3 w-3 rounded-full" style={{ backgroundColor: child.color }} />
-                        <span className="font-medium">{child.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 lg:sticky lg:top-4">
+        <div className="order-2 bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold text-slate-800 mb-4">
               {editingEventId ? "Modifier un événement" : "Ajouter un événement"}
             </h2>
@@ -964,9 +902,21 @@ export default function ChildrenPlanningPage() {
               ) : null}
             </form>
           </div>
+
+        <div className="order-3 bg-white rounded-lg shadow-md p-4 sm:p-5">
+          <h2 className="text-lg font-semibold text-slate-800">Paramètres des enfants</h2>
+          <p className="text-sm text-slate-600 mt-2 mb-3">
+            L'ajout et la modification des enfants se font dans la section paramètres.
+          </p>
+          <Link
+            href="/protected/parametres/planning-enfants"
+            className="inline-flex bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded font-medium transition-colors"
+          >
+            Gérer dans Paramètres
+          </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="order-1 bg-white rounded-lg shadow-md p-6">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <h2 className="text-xl font-bold text-slate-800">Planning</h2>
             <div className="flex items-center gap-2 w-full sm:w-auto">

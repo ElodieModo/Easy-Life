@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useRouter } from "next/navigation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 
-export function SignUpForm() {
+export function SignUpForm({ nextPath = "/" }: { nextPath?: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
@@ -47,7 +46,6 @@ export function SignUpForm() {
     }
 
     const supabase = createClient();
-    const nextPath = searchParams.get("next") || "/";
     const encodedNextPath = encodeURIComponent(nextPath);
     setIsLoading(true);
 

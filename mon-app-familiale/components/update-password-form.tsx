@@ -13,8 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export function UpdatePasswordForm({
   className,
@@ -24,8 +24,35 @@ export function UpdatePasswordForm({
   const [repeatPassword, setRepeatPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const tokenHash = searchParams.get("token_hash");
+    const type = searchParams.get("type");
+
+    if (tokenHash && type === "recovery") {
+      const supabase = createClient();
+      supabase.auth
+        .verifyOtp({ token_hash: tokenHash, type: "recovery" })
+        .then(({ error }) => {
+          if (error) {
+            setError("Lien invalide ou expiré. Veuillez faire une nouvelle demande.");
+          } else {
+            setSessionReady(true);
+          }
+        });
+    } else {
+      // Session already established (e.g. via /auth/confirm redirect)
+      const supabase = createClient();
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session) setSessionReady(true);
+        else setError("Lien invalide ou expiré. Veuillez faire une nouvelle demande.");
+      });
+    }
+  }, [searchParams]);
 
   const validatePassword = (pwd: string): string[] => {
     const errors: string[] = [];
@@ -63,7 +90,6 @@ export function UpdatePasswordForm({
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
       router.push("/protected");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Une erreur s'est produite";
@@ -79,11 +105,11 @@ export function UpdatePasswordForm({
         <CardHeader>
           <CardTitle className="text-2xl">Réinitialiser votre mot de passe</CardTitle>
           <CardDescription>
-            Veuillez entrer votre nouveau mot de passe ci-dessous.
+            {sessionReady ? "Veuillez entrer votre nouveau mot de passe ci-dessous." : "Vérification du lien..."}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleUpdatePassword}>
+          <form onSubmit={handleUpdatePassword} style={{ display: sessionReady ? undefined : "none" }}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="password">Nouveau mot de passe</Label>

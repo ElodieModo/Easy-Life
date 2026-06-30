@@ -43,9 +43,9 @@ function InvitationContent() {
         return;
       }
 
-      setMessage("Invitation acceptée. Redirection vers votre espace famille...");
+      setMessage("Invitation acceptée. Redirection vers vos paramètres...");
       setIsLoading(false);
-      router.push("/protected/famille");
+      router.push("/protected/parametres");
       router.refresh();
     };
 

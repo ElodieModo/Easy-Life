@@ -183,7 +183,8 @@ export function ExternalCalendarZone({ showManagementPanel = true }: ExternalCal
       .from("family_calendar_events")
       .select("id, title, location, start_at, end_at, is_all_day")
       .eq("family_id", familyId)
-      .gte("end_at", nowIso)
+      // Include events that have an end date in range OR events without end date but starting in range.
+      .or(`end_at.gte.${nowIso},and(end_at.is.null,start_at.gte.${nowIso})`)
       .order("start_at", { ascending: true })
       .limit(25);
 
@@ -471,9 +472,9 @@ export function ExternalCalendarZone({ showManagementPanel = true }: ExternalCal
       ) : null}
 
       <div className={showManagementPanel ? "mt-6" : ""}>
-        <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-lg font-semibold text-slate-800">Événements synchronisés (lecture seule)</h3>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setViewMode("list")}

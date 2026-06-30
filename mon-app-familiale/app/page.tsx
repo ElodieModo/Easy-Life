@@ -69,16 +69,16 @@ function GuestHome() {
           <p className="inline-flex items-center rounded-full bg-rose-100 text-rose-700 text-xs font-semibold px-3 py-1 mb-5">
             Organisation familiale partagée
           </p>
-          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight flex items-center gap-3">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight flex flex-wrap items-center gap-2 sm:gap-3">
             <Image
-              src="/easy-life-logo.svg"
+              src="/easy-life-logo-v2.svg"
               alt="Logo Easy Life"
               width={54}
               height={54}
               className="h-11 w-11 md:h-14 md:w-14 rounded-2xl shadow-sm"
               priority
             />
-            <span className="inline-flex items-center whitespace-nowrap rounded-full px-5 py-1.5 text-3xl md:text-4xl font-black tracking-wide text-white bg-gradient-to-r from-rose-600 via-fuchsia-500 to-orange-500 shadow-sm">
+            <span className="inline-flex items-center rounded-full px-3 sm:px-5 py-1.5 text-2xl sm:text-3xl md:text-4xl font-black tracking-wide text-white bg-gradient-to-r from-rose-600 via-fuchsia-500 to-orange-500 shadow-sm">
               EASY LIFE
             </span>
           </h1>
@@ -163,32 +163,23 @@ function ConnectedHome({
   return (
     <>
       <section className="bg-white/80 backdrop-blur rounded-2xl border border-rose-100 shadow-sm p-8 md:p-10">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 flex items-center gap-3">
-          <span>Bienvenue sur</span>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 flex flex-wrap items-center gap-2 sm:gap-3">
+          <span className="w-full sm:w-auto">Bienvenue sur</span>
           <Image
-            src="/easy-life-logo.svg"
+            src="/easy-life-logo-v2.svg"
             alt="Logo Easy Life"
             width={38}
             height={38}
             className="h-9 w-9 md:h-10 md:w-10 rounded-xl shadow-sm"
             priority
           />
-          <span className="inline-flex items-center whitespace-nowrap rounded-full px-4 py-1 text-base md:text-lg font-black tracking-wide text-white bg-gradient-to-r from-rose-600 via-fuchsia-500 to-orange-500 shadow-sm">
+          <span className="inline-flex items-center rounded-full px-3 sm:px-4 py-1 text-sm sm:text-base md:text-lg font-black tracking-wide text-white bg-gradient-to-r from-rose-600 via-fuchsia-500 to-orange-500 shadow-sm">
             EASY LIFE
           </span>
         </h1>
-        <p className="mt-3 text-slate-600">Connecté en tant que {email}</p>
+        <p className="mt-3 text-slate-600">Connecté en tant que <span className="font-medium">{email}</span></p>
 
         <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-6 gap-4">
-          <Link
-            href="/protected/famille"
-            className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white p-5 transition-colors"
-          >
-            <p className="text-2xl">👨‍👩‍👧‍👦</p>
-            <p className="font-semibold mt-2">Ma famille</p>
-            <p className="text-rose-100 text-sm mt-1">Gestion des membres</p>
-          </Link>
-
           <Link
             href="/protected/liste-courses"
             className="rounded-xl bg-white border border-slate-200 hover:border-rose-200 p-5 transition-colors"
@@ -232,6 +223,15 @@ function ConnectedHome({
             <p className="text-2xl">📅</p>
             <p className="font-semibold mt-2 text-slate-800">Calendrier partagé</p>
             <p className="text-slate-500 text-sm mt-1">Lecture seule partagée</p>
+          </Link>
+
+          <Link
+            href="/protected/parametres"
+            className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white p-5 transition-colors"
+          >
+            <p className="text-2xl">⚙️</p>
+            <p className="font-semibold mt-2">Paramètres</p>
+            <p className="text-rose-100 text-sm mt-1">Réglages des modules</p>
           </Link>
         </div>
       </section>
@@ -344,8 +344,16 @@ function ConnectedHome({
 
 async function PageContent() {
   const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  const user = data?.user;
+  const claimsResult = await Promise.race([
+    supabase.auth.getClaims(),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500)),
+  ]);
+  const claimsData = claimsResult?.data;
+  const userId = claimsData?.claims?.sub ?? null;
+  const userEmail = claimsData?.claims?.email ?? null;
+  const userDisplayName = (claimsData?.claims as Record<string, unknown> | undefined)?.user_metadata
+    ? ((claimsData!.claims as Record<string, unknown>).user_metadata as Record<string, string>)?.display_name ?? null
+    : null;
 
   let summary: DashboardSummary = {
     hasFamily: false,
@@ -358,15 +366,24 @@ async function PageContent() {
     notifications: [],
   };
 
-  if (user) {
-    const { data: membershipRows } = await supabase
-      .from("family_members")
-      .select("family_id")
-      .eq("user_id", user.id)
-      .order("joined_at", { ascending: false })
-      .limit(1);
+  if (userId) {
+    let familyId: string | null = null;
 
-    const familyId = ((membershipRows?.[0] as FamilyMembershipRow | undefined)?.family_id ?? null) as string | null;
+    const { data: rpcFamilyId, error: rpcFamilyIdError } = await supabase.rpc("user_family_id");
+    if (!rpcFamilyIdError && rpcFamilyId) {
+      familyId = rpcFamilyId as string;
+    }
+
+    if (!familyId) {
+      const { data: membershipRows } = await supabase
+        .from("family_members")
+        .select("family_id")
+        .eq("user_id", userId)
+        .order("joined_at", { ascending: false })
+        .limit(1);
+
+      familyId = ((membershipRows?.[0] as FamilyMembershipRow | undefined)?.family_id ?? null) as string | null;
+    }
 
     if (familyId) {
       const now = new Date();
@@ -380,7 +397,8 @@ async function PageContent() {
         supabase
           .from("family_child_planning_events")
           .select("id, child_id, title, start_at, end_at")
-          .eq("family_id", familyId),
+          .eq("family_id", familyId)
+          .limit(200),
         supabase
           .from("family_calendar_events")
           .select("id, title, start_at")
@@ -391,14 +409,14 @@ async function PageContent() {
           .limit(5),
         supabase
           .from("shopping_items")
-          .select("id", { count: "exact", head: true })
+          .select("id", { count: "planned", head: true })
           .eq("family_id", familyId)
           .eq("done", false),
         supabase.from("family_children").select("id, name").eq("family_id", familyId),
         supabase.from("family_calendar_connections").select("last_synced_at").eq("family_id", familyId).maybeSingle(),
         supabase
           .from("family_weekly_menu_items")
-          .select("id", { count: "exact", head: true })
+          .select("id", { count: "planned", head: true })
           .eq("family_id", familyId)
           .eq("meal_slot", "diner")
           .eq("week_start_date", mondayKey),
@@ -521,14 +539,14 @@ async function PageContent() {
 
   return (
     <>
-      {user && <Navbar />}
+      {userId && <Navbar />}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        {!user ? <GuestHome /> : <ConnectedHome email={user.email} summary={summary} />}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 sm:py-20">
+        {!userId ? <GuestHome /> : <ConnectedHome email={userDisplayName ?? userEmail} summary={summary} />}
       </div>
 
       <footer className="border-t border-slate-200 mt-20 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 text-center text-slate-500">
           <p>&copy; 2026 Easy Life. Application d&apos;organisation familiale.</p>
         </div>
       </footer>
@@ -539,7 +557,7 @@ async function PageContent() {
 function PageSkeleton() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100 text-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 sm:py-20">
         <div className="text-center mb-16 animate-pulse">
           <div className="h-16 bg-rose-200 rounded mb-6 w-3/4 mx-auto"></div>
           <div className="h-8 bg-rose-200 rounded w-1/2 mx-auto mb-8"></div>
@@ -552,7 +570,7 @@ function PageSkeleton() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100 text-slate-800">
+    <main className="min-h-screen w-full bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100 text-slate-800">
       <Suspense fallback={<PageSkeleton />}>
         <PageContent />
       </Suspense>

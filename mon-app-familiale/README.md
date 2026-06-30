@@ -134,3 +134,26 @@ CALENDAR_SYNC_TOKEN=same_value_as_CALENDAR_SYNC_CRON_TOKEN
 ```
 
 4. The workflow runs hourly and can be started manually from GitHub Actions.
+
+## Test sur 2 telephones
+
+Pour tester l'app en meme temps sur deux telephones, utilisez une URL accessible hors de localhost.
+
+1. Demarrer l'app en mode mobile:
+
+```bash
+npm run dev:mobile
+```
+
+2. Si vous utilisez GitHub Codespaces:
+
+- Ouvrir l'onglet Ports.
+- Mettre le port `3000` en `Public`.
+- Ouvrir l'URL publique sur les deux telephones.
+
+3. Si vous lancez l'app sur un PC local (meme Wi-Fi):
+
+- Recuperer l'IP locale du PC.
+- Ouvrir `http://IP_LOCALE:3000` sur les deux telephones.
+
+4. Si vous utilisez Supabase Auth, ajouter aussi l'URL utilisee dans les Redirect URLs du projet Supabase.
