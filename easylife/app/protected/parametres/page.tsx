@@ -5,6 +5,12 @@ import { Navbar } from "@/components/navbar";
 
 const settingsItems = [
   {
+    title: "Ma famille",
+    description: "Gérer le nom affiché, créer la famille et inviter de nouveaux membres.",
+    href: "/protected/parametres/ma-famille",
+    cta: "Ouvrir le module",
+  },
+  {
     title: "Liste de courses",
     description: "Créer, renommer et sélectionner les listes utilisées par la famille.",
     href: "/protected/liste-courses",
