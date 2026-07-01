@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
 
@@ -67,7 +67,7 @@ export default function UsefulAddressesPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const loadAddresses = async () => {
+  const loadAddresses = useCallback(async () => {
     setIsLoading(true);
     setMessage(null);
     setErrorMessage(null);
@@ -160,11 +160,11 @@ export default function UsefulAddressesPage() {
     );
 
     setIsLoading(false);
-  };
+  }, [supabase]);
 
   useEffect(() => {
     void loadAddresses();
-  }, []);
+  }, [loadAddresses]);
 
   const handleAddAddress = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -249,7 +249,7 @@ export default function UsefulAddressesPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-slate-800 mb-4">Base d'adresses de la famille</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-4">Base d&apos;adresses de la famille</h2>
           {isLoading ? (
             <p className="text-slate-500">Chargement des adresses...</p>
           ) : addresses.length === 0 ? (

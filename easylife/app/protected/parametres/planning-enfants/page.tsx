@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
@@ -65,7 +65,7 @@ export default function PlanningChildrenSettingsPage() {
     setChildColor("#38bdf8");
   };
 
-  const loadChildren = async () => {
+  const loadChildren = useCallback(async () => {
     setIsLoading(true);
     setMessage(null);
     setErrorMessage(null);
@@ -152,11 +152,11 @@ export default function PlanningChildrenSettingsPage() {
 
     setChildren(mappedChildren);
     setIsLoading(false);
-  };
+  }, [supabase]);
 
   useEffect(() => {
     void loadChildren();
-  }, []);
+  }, [loadChildren]);
 
   const handleSubmitChild = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

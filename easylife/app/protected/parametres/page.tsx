@@ -47,7 +47,7 @@ export default function SettingsPage() {
         <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
           <h1 className="text-2xl sm:text-4xl font-bold text-slate-800 mb-2">Paramètres</h1>
           <p className="text-slate-600">
-            Centralisez ici les réglages des modules de l'application. Les actions du quotidien restent dans chaque
+            Centralisez ici les réglages des modules de l&apos;application. Les actions du quotidien restent dans chaque
             écran pour garder une interface simple.
           </p>
         </div>

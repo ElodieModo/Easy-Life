@@ -46,7 +46,7 @@ export function LoginForm({ nextPath = "/" }: { nextPath?: string }) {
         router.push(nextPath);
         router.refresh();
       }
-    } catch (err) {
+    } catch {
       setError("Une erreur s'est produite. Veuillez réessayer.");
     } finally {
       setIsLoading(false);

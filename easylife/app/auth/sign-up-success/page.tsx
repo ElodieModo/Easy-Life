@@ -30,7 +30,7 @@ async function SignUpSuccessContent({
             <CardContent>
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Votre compte a été créé avec succès. Validez d'abord votre email puis connectez-vous.
+                  Votre compte a été créé avec succès. Validez d&apos;abord votre email puis connectez-vous.
                 </p>
                 <Link
                   href={`/auth/login?next=${encodeURIComponent(nextPath)}`}
@@ -39,7 +39,7 @@ async function SignUpSuccessContent({
                   Se connecter
                 </Link>
                 <p className="text-xs text-center text-gray-500">
-                  Si vous ne recevez pas l&apos;email, vérifiez vos spams puis utilisez le bouton "Renvoyer l&apos;email de confirmation" sur l&apos;écran de connexion.
+                  Si vous ne recevez pas l&apos;email, vérifiez vos spams puis utilisez le bouton &quot;Renvoyer l&apos;email de confirmation&quot; sur l&apos;écran de connexion.
                 </p>
               </div>
             </CardContent>

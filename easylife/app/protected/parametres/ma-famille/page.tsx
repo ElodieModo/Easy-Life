@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
 
@@ -46,7 +46,7 @@ export default function FamilySettingsPage() {
 	const [displayNameInput, setDisplayNameInput] = useState("");
 	const [isSavingName, setIsSavingName] = useState(false);
 
-	const loadFamily = async () => {
+	const loadFamily = useCallback(async () => {
 		setIsLoading(true);
 		setErrorMessage(null);
 
@@ -119,11 +119,11 @@ export default function FamilySettingsPage() {
 		}
 
 		setIsLoading(false);
-	};
+	}, [supabase]);
 
 	useEffect(() => {
 		void loadFamily();
-	}, []);
+	}, [loadFamily]);
 
 	const handleCreateFamily = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -261,10 +261,10 @@ export default function FamilySettingsPage() {
 					<p className="text-slate-600">Gérer la famille, les invitations et les membres depuis la section Paramètres.</p>
 
 					<div className="mt-6 border-t border-slate-100 pt-6">
-						<h2 className="text-lg font-semibold text-slate-700 mb-1">Nom visible dans l'application</h2>
+						<h2 className="text-lg font-semibold text-slate-700 mb-1">Nom visible dans l&apos;application</h2>
 						<p className="text-sm text-slate-500 mb-3">
-							Choisissez ici le nom affiché à la place de votre email sur l'accueil.
-							{displayName ? <span className="ml-1 font-medium text-slate-700">Actuel : "{displayName}"</span> : null}
+							Choisissez ici le nom affiché à la place de votre email sur l&apos;accueil.
+							{displayName ? <span className="ml-1 font-medium text-slate-700">Actuel : &quot;{displayName}&quot;</span> : null}
 						</p>
 						<form onSubmit={handleSaveDisplayName} className="flex gap-3 items-center">
 							<input
@@ -327,13 +327,13 @@ export default function FamilySettingsPage() {
 						</div>
 
 						<div className="bg-white rounded-lg shadow-md p-6">
-							<h3 className="text-xl font-bold text-slate-800 mb-3">Rejoindre avec un lien d'invitation</h3>
+							<h3 className="text-xl font-bold text-slate-800 mb-3">Rejoindre avec un lien d&apos;invitation</h3>
 							<form onSubmit={handleAcceptInvite} className="space-y-3">
 								<input
 									type="text"
 									value={inviteTokenInput}
 									onChange={(event) => setInviteTokenInput(event.target.value)}
-									placeholder="Collez le lien d'invitation"
+									placeholder="Collez le lien d&apos;invitation"
 									className="w-full px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
 								/>
 								<button
@@ -368,11 +368,11 @@ export default function FamilySettingsPage() {
 
 						{createdToken ? (
 							<div className="mt-4 border border-rose-200 bg-rose-50 rounded p-4">
-								<p className="text-sm text-rose-800 font-medium">Code d'invitation :</p>
+								<p className="text-sm text-rose-800 font-medium">Code d&apos;invitation :</p>
 								<p className="text-sm break-all text-rose-900 mt-1">{createdToken}</p>
 								{inviteLink ? (
 									<>
-										<p className="text-sm text-rose-800 font-medium mt-3">Lien d'invitation :</p>
+										<p className="text-sm text-rose-800 font-medium mt-3">Lien d&apos;invitation :</p>
 										<a
 											href={inviteLink}
 											className="text-sm break-all text-rose-900 underline"

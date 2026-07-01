@@ -62,7 +62,7 @@ function InvitationContent() {
           Cette page permet de rejoindre automatiquement la famille partagée via le lien reçu.
         </p>
 
-        {isLoading ? <p className="text-slate-500">Traitement de l'invitation...</p> : null}
+        {isLoading ? <p className="text-slate-500">Traitement de l&apos;invitation...</p> : null}
 
         {message ? (
           <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded p-3">
@@ -103,7 +103,7 @@ export default function InvitationPage() {
       fallback={
         <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100 flex items-center justify-center p-6">
           <div className="w-full max-w-lg bg-white rounded-lg shadow-md p-6 sm:p-8 text-slate-500">
-            Chargement de l'invitation...
+            Chargement de l&apos;invitation...
           </div>
         </div>
       }

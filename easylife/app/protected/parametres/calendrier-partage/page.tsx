@@ -21,7 +21,7 @@ export default function SharedCalendarSettingsPage() {
             </Link>
           </div>
           <p className="text-slate-600">
-            Gérez ici la connexion iCal, la synchronisation manuelle et l'état de partage famille.
+            Gérez ici la connexion iCal, la synchronisation manuelle et l&apos;état de partage famille.
           </p>
         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
@@ -71,17 +71,6 @@ const parseFamily = (value: FamilyPayload): FamilyInfo | null => {
   return value;
 };
 
-const toInputDateTime = (iso: string) => {
-  const date = new Date(iso);
-  const pad = (value: number) => String(value).padStart(2, "0");
-  const y = date.getFullYear();
-  const m = pad(date.getMonth() + 1);
-  const d = pad(date.getDate());
-  const h = pad(date.getHours());
-  const min = pad(date.getMinutes());
-  return `${y}-${m}-${d}T${h}:${min}`;
-};
-
 const weekdayOrder: Weekday[] = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
 const weekdayLabel: Record<Weekday, string> = {
@@ -147,43 +136,11 @@ const getEventGroupKey = (planningEvent: PlanningEvent) => {
   return [planningEvent.title, planningEvent.category, planningEvent.notes ?? "", planningEvent.startAt, planningEvent.endAt].join("|");
 };
 
-const toLocalDateTimeInput = (value: Date) => {
-  const pad = (part: number) => String(part).padStart(2, "0");
-  const y = value.getFullYear();
-  const m = pad(value.getMonth() + 1);
-  const d = pad(value.getDate());
-  const h = pad(value.getHours());
-  const min = pad(value.getMinutes());
-  return `${y}-${m}-${d}T${h}:${min}`;
-};
-
-const startOfWeekMonday = (value: Date) => {
-  const dayStart = new Date(value);
-  dayStart.setHours(0, 0, 0, 0);
-  const dayIndex = (dayStart.getDay() + 6) % 7;
-  dayStart.setDate(dayStart.getDate() - dayIndex);
-  return dayStart;
-};
-
-const addDays = (value: Date, days: number) => {
-  const next = new Date(value);
-  next.setDate(next.getDate() + days);
-  return next;
-};
-
-const dayKey = (value: Date) => {
-  const y = value.getFullYear();
-  const m = String(value.getMonth() + 1).padStart(2, "0");
-  const d = String(value.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-};
-
 export default function ChildrenPlanningPage() {
   const supabase = useMemo(() => createClient(), []);
   const [family, setFamily] = useState<FamilyInfo | null>(null);
   const [children, setChildren] = useState<Child[]>([]);
   const [events, setEvents] = useState<PlanningEvent[]>([]);
-  const [selectedChildId, setSelectedChildId] = useState<string>("");
   const [selectedEventChildIds, setSelectedEventChildIds] = useState<string[]>([]);
   const [eventTitle, setEventTitle] = useState("");
   const [eventCategory, setEventCategory] = useState<ActivityCategory>("ecole");
@@ -204,7 +161,7 @@ export default function ChildrenPlanningPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const loadPlanning = async () => {
+  const loadPlanning = useCallback(async () => {
     setIsLoading(true);
     setMessage(null);
     setErrorMessage(null);
@@ -266,7 +223,6 @@ export default function ChildrenPlanningPage() {
     if (!activeFamily) {
       setChildren([]);
       setEvents([]);
-      setSelectedChildId("");
       setErrorMessage("Aucune famille active. Créez ou rejoignez une famille.");
       setIsLoading(false);
       return;
@@ -292,7 +248,6 @@ export default function ChildrenPlanningPage() {
     }));
 
     setChildren(mappedChildren);
-    setSelectedChildId((previous) => previous || mappedChildren[0]?.id || "");
     setSelectedEventChildIds((previous) => {
       const mappedChildIds = mappedChildren.map((child) => child.id);
       const kept = previous.filter((childId) => mappedChildIds.includes(childId));
@@ -329,11 +284,11 @@ export default function ChildrenPlanningPage() {
     );
 
     setIsLoading(false);
-  };
+  }, [supabase]);
 
   useEffect(() => {
     void loadPlanning();
-  }, []);
+  }, [loadPlanning]);
 
   useEffect(() => {
     if (eventTimeMode !== "duration") {
@@ -906,7 +861,7 @@ export default function ChildrenPlanningPage() {
         <div className="order-3 bg-white rounded-lg shadow-md p-4 sm:p-5">
           <h2 className="text-lg font-semibold text-slate-800">Paramètres des enfants</h2>
           <p className="text-sm text-slate-600 mt-2 mb-3">
-            L'ajout et la modification des enfants se font dans la section paramètres.
+            L&apos;ajout et la modification des enfants se font dans la section paramètres.
           </p>
           <Link
             href="/protected/parametres/planning-enfants"

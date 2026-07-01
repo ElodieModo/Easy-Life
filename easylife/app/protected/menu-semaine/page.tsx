@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
@@ -129,7 +129,7 @@ export default function WeeklyMenuPage() {
     return [...set].sort((a, b) => a.localeCompare(b, "fr-FR"));
   }, [rowsByKey]);
 
-  const loadFamilyAndLists = async () => {
+  const loadFamilyAndLists = useCallback(async () => {
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -207,9 +207,9 @@ export default function WeeklyMenuPage() {
     setShoppingLists(normalizedLists);
     setSelectedShoppingListId((previous) => previous ?? normalizedLists[0]?.id ?? null);
     setIsLoading(false);
-  };
+  }, [supabase]);
 
-  const loadWeekRows = async () => {
+  const loadWeekRows = useCallback(async () => {
     if (!family) {
       return;
     }
@@ -252,15 +252,15 @@ export default function WeeklyMenuPage() {
     setRowsByKey(nextRowsByKey);
     setDraftsByKey(nextDraftsByKey);
     setIsLoading(false);
-  };
+  }, [family, supabase, weekStartDate]);
 
   useEffect(() => {
     void loadFamilyAndLists();
-  }, []);
+  }, [loadFamilyAndLists]);
 
   useEffect(() => {
     void loadWeekRows();
-  }, [family, weekStartDate]);
+  }, [loadWeekRows]);
 
   const updateDraft = (dayOfWeek: number, patch: Partial<MenuDraft>) => {
     const mealSlot = DINNER_SLOT;

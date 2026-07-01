@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type ExternalCalendarConfig = {
@@ -108,7 +108,7 @@ export function ExternalCalendarZone({ showManagementPanel = true }: ExternalCal
   const [message, setMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const loadCalendarData = async () => {
+  const loadCalendarData = useCallback(async () => {
     setIsLoading(true);
 
     const {
@@ -196,27 +196,9 @@ export function ExternalCalendarZone({ showManagementPanel = true }: ExternalCal
 
     setEvents((eventRows ?? []) as EventRow[]);
     setIsLoading(false);
-  };
+  }, [supabase]);
 
-  useEffect(() => {
-    void loadCalendarData();
-  }, []);
-
-  useEffect(() => {
-    if (!isConnected || !family?.id) {
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      void triggerSync(false);
-    }, AUTO_SYNC_INTERVAL_MS);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [isConnected, family?.id]);
-
-  const triggerSync = async (force: boolean) => {
+  const triggerSync = useCallback(async (force: boolean) => {
     setIsSyncing(true);
     setErrorMessage(null);
 
@@ -239,31 +221,42 @@ export function ExternalCalendarZone({ showManagementPanel = true }: ExternalCal
       error?: string;
     };
 
-    if (!response.ok) {
-      setErrorMessage(payload.error ?? "Échec de synchronisation.");
+    if (!response.ok || payload.status !== "ok") {
+      setErrorMessage(
+        payload.error ?? "Impossible de synchroniser le calendrier pour le moment.",
+      );
       setIsSyncing(false);
       return;
     }
 
-    if (payload.status === "skipped") {
-      setMessage("Synchro déjà récente pour la famille.");
-    } else {
-      const imported = payload.imported ?? 0;
-      const detected = payload.detected ?? imported;
-      const ignored = payload.ignored ?? Math.max(detected - imported, 0);
-      const ignoredMissingStart = payload.ignoredDetails?.missingStart ?? 0;
+    const ignoredMissingStart = payload.ignoredDetails?.missingStart ?? 0;
+    const ignoredCount = payload.ignored ?? 0;
 
-      const details =
-        ignored > 0
-          ? `, ignorés: ${ignored} (sans date de début: ${ignoredMissingStart})`
-          : "";
-
-      setMessage(`Synchro terminée. Détectés: ${detected}, importés: ${imported}${details}.`);
-    }
+    setMessage(
+      `Synchronisation terminée: ${payload.imported ?? 0} importé(s), ${payload.detected ?? 0} détecté(s), ${ignoredCount} ignoré(s)${ignoredMissingStart > 0 ? ` dont ${ignoredMissingStart} sans date de début` : ""}.`,
+    );
 
     await loadCalendarData();
     setIsSyncing(false);
-  };
+  }, [loadCalendarData]);
+
+  useEffect(() => {
+    void loadCalendarData();
+  }, [loadCalendarData]);
+
+  useEffect(() => {
+    if (!isConnected || !family?.id) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void triggerSync(false);
+    }, AUTO_SYNC_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [family?.id, isConnected, triggerSync]);
 
   const handleConnect = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

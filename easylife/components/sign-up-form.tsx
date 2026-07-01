@@ -85,7 +85,7 @@ export function SignUpForm({ nextPath = "/" }: { nextPath?: string }) {
           router.push(`/auth/sign-up-success?next=${encodedNextPath}`);
         }
       }
-    } catch (err) {
+    } catch {
       setError("Une erreur s'est produite. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
