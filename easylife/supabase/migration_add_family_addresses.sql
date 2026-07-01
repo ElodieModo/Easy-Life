@@ -23,6 +23,8 @@ create index if not exists idx_family_useful_addresses_category
 create or replace function public.set_family_useful_addresses_updated_at()
 returns trigger
 language plpgsql
+security definer
+set search_path = public
 as $$
 begin
   new.updated_at = now();
