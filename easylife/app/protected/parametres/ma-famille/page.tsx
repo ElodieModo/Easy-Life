@@ -261,9 +261,9 @@ export default function FamilySettingsPage() {
 					<p className="text-slate-600">Gérer la famille, les invitations et les membres depuis la section Paramètres.</p>
 
 					<div className="mt-6 border-t border-slate-100 pt-6">
-						<h2 className="text-lg font-semibold text-slate-700 mb-1">Nom d'affichage</h2>
+						<h2 className="text-lg font-semibold text-slate-700 mb-1">Nom visible dans l'application</h2>
 						<p className="text-sm text-slate-500 mb-3">
-							Affiché à la place de votre email sur l'accueil.
+							Choisissez ici le nom affiché à la place de votre email sur l'accueil.
 							{displayName ? <span className="ml-1 font-medium text-slate-700">Actuel : "{displayName}"</span> : null}
 						</p>
 						<form onSubmit={handleSaveDisplayName} className="flex gap-3 items-center">

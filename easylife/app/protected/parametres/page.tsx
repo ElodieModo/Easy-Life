@@ -36,12 +36,6 @@ const settingsItems = [
     href: "/protected/adresses-utiles",
     cta: "Ouvrir le module",
   },
-  {
-    title: "Gestion famille",
-    description: "Gérer les membres, invitations et informations de la famille active.",
-    href: "/protected/parametres/ma-famille",
-    cta: "Ouvrir le module",
-  },
 ];
 
 export default function SettingsPage() {

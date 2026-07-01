@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function FamilyLegacyPage() {
-  redirect("/protected/parametres");
+  redirect("/protected/parametres/ma-famille");
 }

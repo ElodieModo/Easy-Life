@@ -10,6 +10,7 @@ export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const mobileTabs = [
     { href: "/protected/liste-courses", label: "Courses", icon: "🛒" },
@@ -20,7 +21,8 @@ export function Navbar() {
   ];
 
   const handleRefresh = () => {
-    router.refresh();
+    setIsRefreshing(true);
+    window.location.reload();
   };
 
   const handleLogout = async () => {
@@ -93,13 +95,14 @@ export function Navbar() {
             </Link>
             <button
               onClick={handleRefresh}
-              className="text-center bg-sky-500 hover:bg-sky-600 text-white px-3 py-2 rounded font-medium transition-colors"
+              disabled={isRefreshing}
+              className="text-center bg-sky-500 hover:bg-sky-600 text-white px-3 py-2 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              🔄 Actualiser
+              {isRefreshing ? "Actualisation..." : "🔄 Actualiser"}
             </button>
             <button
               onClick={handleLogout}
-              disabled={isLoading}
+              disabled={isLoading || isRefreshing}
               className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Déconnexion..." : "Se déconnecter"}
@@ -134,9 +137,10 @@ export function Navbar() {
 
           <button
             onClick={handleRefresh}
-            className="mt-2 inline-flex w-full items-center justify-center rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-700"
+            disabled={isRefreshing}
+            className="mt-2 inline-flex w-full items-center justify-center rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            🔄 Actualiser
+            {isRefreshing ? "Actualisation..." : "🔄 Actualiser"}
           </button>
 
           <div className="mt-2 flex items-center gap-2 overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

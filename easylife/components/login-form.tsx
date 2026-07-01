@@ -11,7 +11,9 @@ export function LoginForm({ nextPath = "/" }: { nextPath?: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isResendingConfirmation, setIsResendingConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +26,7 @@ export function LoginForm({ nextPath = "/" }: { nextPath?: string }) {
     const supabase = createClient();
     setIsLoading(true);
     setError(null);
+    setInfoMessage(null);
 
     try {
       const { error: loginError } = await supabase.auth.signInWithPassword({
@@ -50,6 +53,38 @@ export function LoginForm({ nextPath = "/" }: { nextPath?: string }) {
     }
   };
 
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setError("Saisissez d'abord votre email pour renvoyer la confirmation");
+      return;
+    }
+
+    const supabase = createClient();
+    setIsResendingConfirmation(true);
+    setError(null);
+    setInfoMessage(null);
+
+    try {
+      const { error: resendError } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm?next=${encodeURIComponent(nextPath)}`,
+        },
+      });
+
+      if (resendError) {
+        setError("Impossible de renvoyer l'email de confirmation pour le moment");
+      } else {
+        setInfoMessage("Email de confirmation renvoyé. Vérifiez votre boîte mail et vos spams.");
+      }
+    } catch {
+      setError("Une erreur s'est produite lors du renvoi de l'email");
+    } finally {
+      setIsResendingConfirmation(false);
+    }
+  };
+
   return (
     <form onSubmit={handleLogin} className="flex flex-col gap-4 w-full max-w-sm p-6 bg-white rounded-lg shadow">
       <div className="mb-2">
@@ -60,6 +95,12 @@ export function LoginForm({ nextPath = "/" }: { nextPath?: string }) {
       {error && (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {infoMessage && (
+        <Alert>
+          <AlertDescription>{infoMessage}</AlertDescription>
         </Alert>
       )}
       
@@ -97,6 +138,15 @@ export function LoginForm({ nextPath = "/" }: { nextPath?: string }) {
         className="bg-black text-white p-2 rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-2 hover:bg-gray-900 transition-colors"
       >
         {isLoading ? "Connexion en cours..." : "Se connecter"}
+      </button>
+
+      <button
+        type="button"
+        onClick={handleResendConfirmation}
+        disabled={isResendingConfirmation || isLoading}
+        className="border border-gray-300 text-black p-2 rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+      >
+        {isResendingConfirmation ? "Renvoi en cours..." : "Renvoyer l'email de confirmation"}
       </button>
 
       <div className="flex flex-col gap-2 text-sm text-center text-gray-600 mt-2">
