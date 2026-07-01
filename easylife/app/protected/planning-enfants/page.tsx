@@ -23,7 +23,7 @@ type PlanningEventRow = {
   id: string;
   child_id: string;
   title: string;
-  category: "sport" | "ecole" | "autre";
+  category: "sport" | "ecole" | "club" | "pick_up_time" | "autre";
   notes: string | null;
   start_at: string;
   end_at: string;
@@ -40,7 +40,7 @@ type PlanningEvent = {
   id: string;
   childId: string;
   title: string;
-  category: "sport" | "ecole" | "autre";
+  category: "sport" | "ecole" | "club" | "pick_up_time" | "autre";
   notes: string | null;
   startAt: string;
   endAt: string;
@@ -54,7 +54,7 @@ type FamilyMembershipRow = {
 type EventTimeMode = "manual-end" | "duration";
 type PlanningViewMode = "list" | "week";
 type Weekday = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
-type ActivityCategory = "sport" | "ecole" | "autre";
+type ActivityCategory = "sport" | "ecole" | "club" | "pick_up_time" | "autre";
 
 const REFERENCE_WEEK_START = "2000-01-03";
 const ALL_CHILDREN_FILTER = "all";
@@ -86,12 +86,16 @@ const weekdayLabel: Record<Weekday, string> = {
 const categoryLabel: Record<ActivityCategory, string> = {
   sport: "Sport",
   ecole: "École",
+  club: "Club",
+  pick_up_time: "Pick up time",
   autre: "Autre",
 };
 
 const categoryClasses: Record<ActivityCategory, string> = {
   sport: "bg-sky-100 text-sky-700 border-sky-200",
   ecole: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  club: "bg-amber-100 text-amber-700 border-amber-200",
+  pick_up_time: "bg-violet-100 text-violet-700 border-violet-200",
   autre: "bg-slate-100 text-slate-700 border-slate-200",
 };
 
@@ -737,6 +741,8 @@ export default function ChildrenPlanningPage() {
               >
                 <option value="ecole">École</option>
                 <option value="sport">Sport</option>
+                <option value="club">Club</option>
+                <option value="pick_up_time">Pick up time</option>
                 <option value="autre">Autre</option>
               </select>
 

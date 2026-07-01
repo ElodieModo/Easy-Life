@@ -95,6 +95,7 @@ create table if not exists public.family_child_planning_events (
   family_id uuid not null references public.families(id) on delete cascade,
   child_id uuid not null references public.family_children(id) on delete cascade,
   title text not null,
+  category text not null default 'autre' check (category in ('sport', 'ecole', 'club', 'pick_up_time', 'autre')),
   notes text,
   start_at timestamptz not null,
   end_at timestamptz not null,
@@ -156,6 +157,7 @@ create index if not exists idx_family_children_family_id on public.family_childr
 create index if not exists idx_family_child_planning_events_family_id on public.family_child_planning_events(family_id);
 create index if not exists idx_family_child_planning_events_child_id on public.family_child_planning_events(child_id);
 create index if not exists idx_family_child_planning_events_start_at on public.family_child_planning_events(start_at);
+create index if not exists idx_family_child_planning_events_category on public.family_child_planning_events(category);
 create index if not exists idx_family_weekly_menu_items_family_id on public.family_weekly_menu_items(family_id);
 create index if not exists idx_family_weekly_menu_items_week_start_date on public.family_weekly_menu_items(week_start_date);
 

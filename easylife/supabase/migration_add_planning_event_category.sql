@@ -22,7 +22,7 @@ begin
   ) then
     alter table public.family_child_planning_events
     add constraint family_child_planning_events_category_check
-    check (category in ('sport', 'ecole', 'autre'));
+    check (category in ('sport', 'ecole', 'club', 'pick_up_time', 'autre'));
   end if;
 end
 $$;
