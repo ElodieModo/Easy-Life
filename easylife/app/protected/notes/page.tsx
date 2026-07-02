@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 
 type FamilyInfo = {
   id: string;
@@ -93,22 +94,15 @@ export default function NotesPage() {
   const supabase = useMemo(() => createClient(), []);
 
   const [family, setFamily] = useState<FamilyInfo | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
 
   const [lists, setLists] = useState<NoteList[]>([]);
   const [items, setItems] = useState<NoteItem[]>([]);
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
 
-  const [newListTitle, setNewListTitle] = useState("");
-  const [renameListTitle, setRenameListTitle] = useState("");
-  const [newListVisibility, setNewListVisibility] = useState<NoteListVisibility>("family");
   const [newItemContent, setNewItemContent] = useState("");
 
   const [isLoadingLists, setIsLoadingLists] = useState(true);
   const [isLoadingItems, setIsLoadingItems] = useState(false);
-  const [isCreatingList, setIsCreatingList] = useState(false);
-  const [isRenamingList, setIsRenamingList] = useState(false);
-  const [isDeletingList, setIsDeletingList] = useState(false);
   const [isSavingItem, setIsSavingItem] = useState(false);
 
   const [message, setMessage] = useState<string | null>(null);
@@ -138,8 +132,6 @@ export default function NotesPage() {
       setIsLoadingLists(false);
       return;
     }
-
-    setUserId(user.id);
 
     const { data: membershipRows, error: membershipError } = await supabase
       .from("family_members")
@@ -291,189 +283,6 @@ export default function NotesPage() {
 
   const selectedList = lists.find((list) => list.id === selectedListId) ?? null;
   const doneCount = items.filter((item) => item.done).length;
-  const selectedListIndex = selectedListId ? lists.findIndex((list) => list.id === selectedListId) : -1;
-  const canMoveUp = selectedListIndex > 0;
-  const canMoveDown = selectedListIndex >= 0 && selectedListIndex < lists.length - 1;
-
-  useEffect(() => {
-    setRenameListTitle(selectedList?.title ?? "");
-  }, [selectedList]);
-
-  const handleCreateList = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setMessage(null);
-    setErrorMessage(null);
-
-    const cleanTitle = newListTitle.trim();
-
-    if (!family || !userId || !cleanTitle) {
-      setErrorMessage("Le nom de la liste est obligatoire.");
-      return;
-    }
-
-    setIsCreatingList(true);
-
-    const { data, error } = await supabase
-      .from("family_note_lists")
-      .insert({
-        family_id: family.id,
-        title: cleanTitle,
-        visibility: newListVisibility,
-        owner_user_id: newListVisibility === "private" ? userId : null,
-        created_by: userId,
-      })
-      .select("id, title, visibility, owner_user_id, created_at")
-      .single();
-
-    if (error || !data) {
-      setErrorMessage(error?.message ?? "Impossible de creer cette liste.");
-      setIsCreatingList(false);
-      return;
-    }
-
-    const createdList: NoteList = {
-      id: data.id,
-      title: data.title,
-      visibility: data.visibility,
-      ownerUserId: data.owner_user_id,
-      createdAt: data.created_at,
-    };
-
-    setLists((previous) => {
-      const nextLists = [...previous, createdList];
-      if (userId && family) {
-        persistListOrder(nextLists, userId, family.id);
-      }
-      return nextLists;
-    });
-    setSelectedListId(createdList.id);
-    setNewListTitle("");
-    setNewListVisibility("family");
-    setMessage(
-      createdList.visibility === "family"
-        ? "Liste partagee avec la famille creee."
-        : "Liste privee creee (visible uniquement par vous).",
-    );
-    setIsCreatingList(false);
-  };
-
-  const handleRenameSelectedList = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setMessage(null);
-    setErrorMessage(null);
-
-    const cleanTitle = renameListTitle.trim();
-
-    if (!family || !selectedList || !cleanTitle) {
-      setErrorMessage("Le nom de la liste est obligatoire.");
-      return;
-    }
-
-    if (cleanTitle === selectedList.title) {
-      return;
-    }
-
-    setIsRenamingList(true);
-
-    const { error } = await supabase
-      .from("family_note_lists")
-      .update({ title: cleanTitle })
-      .eq("id", selectedList.id)
-      .eq("family_id", family.id);
-
-    if (error) {
-      setErrorMessage("Impossible de renommer cette liste.");
-      setIsRenamingList(false);
-      return;
-    }
-
-    setLists((previous) =>
-      previous.map((list) =>
-        list.id === selectedList.id
-          ? {
-              ...list,
-              title: cleanTitle,
-            }
-          : list,
-      ),
-    );
-    setMessage("Liste renommee.");
-    setIsRenamingList(false);
-  };
-
-  const handleMoveSelectedList = (direction: "up" | "down") => {
-    if (!selectedListId || !userId || !family) {
-      return;
-    }
-
-    setLists((previous) => {
-      const currentIndex = previous.findIndex((list) => list.id === selectedListId);
-      if (currentIndex < 0) {
-        return previous;
-      }
-
-      const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-      if (targetIndex < 0 || targetIndex >= previous.length) {
-        return previous;
-      }
-
-      const nextLists = [...previous];
-      const [movedList] = nextLists.splice(currentIndex, 1);
-      nextLists.splice(targetIndex, 0, movedList);
-      persistListOrder(nextLists, userId, family.id);
-      return nextLists;
-    });
-  };
-
-  const handleSaveCurrentOrder = () => {
-    if (!userId || !family) {
-      return;
-    }
-
-    persistListOrder(lists, userId, family.id);
-    setMessage("Ordre des listes enregistre.");
-  };
-
-  const handleDeleteSelectedList = async () => {
-    if (!family || !selectedListId) {
-      return;
-    }
-
-    const listToDelete = lists.find((list) => list.id === selectedListId);
-    const confirmationMessage = `Supprimer la liste \"${listToDelete?.title ?? "cette liste"}\" ? Tous ses elements seront supprimes.`;
-
-    if (typeof window !== "undefined" && !window.confirm(confirmationMessage)) {
-      return;
-    }
-
-    setIsDeletingList(true);
-    setMessage(null);
-    setErrorMessage(null);
-
-    const deletingListId = selectedListId;
-
-    const { error } = await supabase
-      .from("family_note_lists")
-      .delete()
-      .eq("id", deletingListId)
-      .eq("family_id", family.id);
-
-    if (error) {
-      setErrorMessage("Impossible de supprimer cette liste.");
-      setIsDeletingList(false);
-      return;
-    }
-
-    const remainingLists = lists.filter((list) => list.id !== deletingListId);
-    setLists(remainingLists);
-    if (userId) {
-      persistListOrder(remainingLists, userId, family.id);
-    }
-    setSelectedListId(remainingLists[0]?.id ?? null);
-    setItems([]);
-    setMessage("Liste supprimee.");
-    setIsDeletingList(false);
-  };
 
   const handleAddItem = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -482,7 +291,11 @@ export default function NotesPage() {
 
     const cleanContent = newItemContent.trim();
 
-    if (!family || !selectedListId || !userId || !cleanContent) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!family || !selectedListId || !user || !cleanContent) {
       setErrorMessage("Le contenu de la note est obligatoire.");
       return;
     }
@@ -494,7 +307,7 @@ export default function NotesPage() {
       .insert({
         family_id: family.id,
         list_id: selectedListId,
-        created_by: userId,
+        created_by: user.id,
         content: cleanContent,
         done: false,
       })
@@ -633,97 +446,16 @@ export default function NotesPage() {
                   Visibilite: <span className="font-medium text-slate-700">{visibilityLabel[selectedList.visibility]}</span>
                 </p>
               ) : null}
-
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleMoveSelectedList("up")}
-                  disabled={!canMoveUp}
-                  aria-label="Monter la liste"
-                  title="Monter"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded bg-amber-500 text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
-                >
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleMoveSelectedList("down")}
-                  disabled={!canMoveDown}
-                  aria-label="Descendre la liste"
-                  title="Descendre"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded bg-amber-500 text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
-                >
-                  ↓
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveCurrentOrder}
-                  disabled={!userId || !family || lists.length === 0}
-                  className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
-                >
-                  Enregistrer l&apos;ordre
-                </button>
-              </div>
-
-              <form onSubmit={handleRenameSelectedList} className="space-y-2">
-                <label htmlFor="notes-list-rename" className="block text-sm font-medium text-slate-700">
-                  Renommer la liste
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  <input
-                    id="notes-list-rename"
-                    type="text"
-                    value={renameListTitle}
-                    onChange={(event) => setRenameListTitle(event.target.value)}
-                    placeholder="Nouveau nom"
-                    disabled={!selectedListId}
-                    className="flex-1 min-w-[220px] px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!selectedListId || isRenamingList}
-                    className="text-sm bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded font-medium transition-colors disabled:opacity-50"
-                  >
-                    {isRenamingList ? "Renommage..." : "Renommer"}
-                  </button>
-                </div>
-              </form>
-
-              <button
-                type="button"
-                onClick={() => void handleDeleteSelectedList()}
-                disabled={!selectedListId || isDeletingList}
-                className="text-sm bg-rose-100 hover:bg-rose-200 text-rose-700 px-3 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
-              >
-                {isDeletingList ? "Suppression..." : "Supprimer la liste"}
-              </button>
             </div>
 
-            <form onSubmit={handleCreateList} className="space-y-3">
-              <h2 className="text-lg font-semibold text-slate-800">Nouvelle liste</h2>
-              <input
-                type="text"
-                value={newListTitle}
-                onChange={(event) => setNewListTitle(event.target.value)}
-                placeholder="Ex: Choses a penser"
-                className="w-full px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
-              />
-              <select
-                value={newListVisibility}
-                onChange={(event) => setNewListVisibility(event.target.value as NoteListVisibility)}
-                className="w-full px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
+            <div className="md:justify-self-end">
+              <Link
+                href="/protected/parametres/notes"
+                className="inline-flex bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded font-medium transition-colors"
               >
-                <option value="family">Visible par toute la famille</option>
-                <option value="private">Visible par moi uniquement</option>
-              </select>
-              <button
-                type="submit"
-                disabled={!family || isCreatingList}
-                className="bg-stone-700 hover:bg-stone-800 text-white px-4 py-2 rounded font-medium transition-colors disabled:opacity-50"
-              >
-                {isCreatingList ? "Creation..." : "Creer la liste"}
-              </button>
-            </form>
+                Parametres des notes
+              </Link>
+            </div>
           </div>
         </div>
 
