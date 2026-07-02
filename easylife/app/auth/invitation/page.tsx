@@ -3,6 +3,7 @@
 import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 
 function InvitationContent() {
   const supabase = useMemo(() => createClient(), []);
@@ -75,7 +76,7 @@ function InvitationContent() {
     });
 
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(getAuthErrorMessage(error));
     } else {
       setMagicLinkSent(true);
     }

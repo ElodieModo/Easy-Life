@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 
 type Mode = "password" | "magic-link";
 
@@ -90,7 +91,7 @@ export function LoginForm({ nextPath = "/" }: { nextPath?: string }) {
         if (otpError.message.toLowerCase().includes("not found") || otpError.message.toLowerCase().includes("signups not allowed")) {
           setError("Aucun compte trouvé pour cet email. Créez d'abord un compte.");
         } else {
-          setError(otpError.message);
+          setError(getAuthErrorMessage(otpError));
         }
       } else {
         setMagicLinkSent(true);
@@ -123,7 +124,7 @@ export function LoginForm({ nextPath = "/" }: { nextPath?: string }) {
       });
 
       if (resendError) {
-        setError("Impossible de renvoyer l'email de confirmation pour le moment");
+        setError(getAuthErrorMessage(resendError));
       } else {
         setInfoMessage("Email de confirmation renvoyé. Vérifiez votre boîte mail et vos spams.");
       }

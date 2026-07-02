@@ -14,6 +14,7 @@ export function Navbar() {
 
   const mobileTabs = [
     { href: "/protected/liste-courses", label: "Courses", icon: "🛒" },
+    { href: "/protected/notes", label: "Notes", icon: "📝" },
     { href: "/protected/menu-semaine", label: "Menu", icon: "🍽️" },
     { href: "/protected/planning-enfants", label: "Enfants", icon: "👧" },
     { href: "/protected/calendrier-externe", label: "Calendrier partagé", icon: "📅" },
@@ -65,6 +66,9 @@ export function Navbar() {
             </Link>
             <Link href="/protected/liste-courses" className="hover:text-rose-700 transition-colors">
               Liste de courses
+            </Link>
+            <Link href="/protected/notes" className="hover:text-rose-700 transition-colors">
+              Notes
             </Link>
             <Link href="/protected/menu-semaine" className="hover:text-rose-700 transition-colors">
               Menu de la semaine

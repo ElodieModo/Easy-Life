@@ -94,7 +94,9 @@ export default function ShoppingListPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isCreatingList, setIsCreatingList] = useState(false);
+  const [isDeletingList, setIsDeletingList] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const persistListOrder = (orderedLists: ShoppingList[], currentUserId: string, familyId: string) => {
     if (typeof window === "undefined") {
@@ -109,6 +111,7 @@ export default function ShoppingListPage() {
     const loadInitialData = async () => {
       setIsLoading(true);
       setErrorMessage(null);
+      setSuccessMessage(null);
 
       const {
         data: { user },
@@ -264,6 +267,7 @@ export default function ShoppingListPage() {
 
       setIsLoading(true);
       setErrorMessage(null);
+      setSuccessMessage(null);
 
       const { data, error } = await supabase
         .from("shopping_items")
@@ -308,6 +312,7 @@ export default function ShoppingListPage() {
 
     setIsSaving(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
 
     const { data, error } = await supabase
       .from("shopping_items")
@@ -353,6 +358,7 @@ export default function ShoppingListPage() {
     }
 
     setErrorMessage(null);
+    setSuccessMessage(null);
     const { error } = await supabase
       .from("shopping_items")
       .update({ done: !currentItem.done })
@@ -383,6 +389,7 @@ export default function ShoppingListPage() {
     }
 
     setErrorMessage(null);
+    setSuccessMessage(null);
     const { error } = await supabase
       .from("shopping_items")
       .delete()
@@ -434,6 +441,7 @@ export default function ShoppingListPage() {
 
     setIsCreatingList(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
 
     const { data, error } = await supabase
       .from("shopping_lists")
@@ -493,6 +501,49 @@ export default function ShoppingListPage() {
     });
   };
 
+  const handleDeleteSelectedList = async () => {
+    if (!userId || !family || !selectedListId) {
+      return;
+    }
+
+    if (lists.length <= 1) {
+      setErrorMessage("Impossible de supprimer la dernière liste de courses.");
+      return;
+    }
+
+    const listToDelete = lists.find((list) => list.id === selectedListId);
+    const confirmationMessage = `Supprimer la liste \"${listToDelete?.name ?? "cette liste"}\" ? Les articles de cette liste seront aussi supprimés.`;
+
+    if (typeof window !== "undefined" && !window.confirm(confirmationMessage)) {
+      return;
+    }
+
+    setIsDeletingList(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const deletingListId = selectedListId;
+    const { error } = await supabase
+      .from("shopping_lists")
+      .delete()
+      .eq("id", deletingListId)
+      .eq("family_id", family.id);
+
+    if (error) {
+      setErrorMessage("Impossible de supprimer cette liste.");
+      setIsDeletingList(false);
+      return;
+    }
+
+    const remainingLists = lists.filter((list) => list.id !== deletingListId);
+    setLists(remainingLists);
+    persistListOrder(remainingLists, userId, family.id);
+    setSelectedListId(remainingLists[0]?.id ?? null);
+    setItems([]);
+    setSuccessMessage("La liste a bien été supprimée.");
+    setIsDeletingList(false);
+  };
+
   const selectedListIndex = selectedListId ? lists.findIndex((list) => list.id === selectedListId) : -1;
   const canMoveUp = selectedListIndex > 0;
   const canMoveDown = selectedListIndex >= 0 && selectedListIndex < lists.length - 1;
@@ -518,6 +569,9 @@ export default function ShoppingListPage() {
           <p className="text-sm text-slate-500">{summaryText}</p>
           {errorMessage ? (
             <p className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded p-3">{errorMessage}</p>
+          ) : null}
+          {successMessage ? (
+            <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded p-3">{successMessage}</p>
           ) : null}
         </div>
 
@@ -568,6 +622,14 @@ export default function ShoppingListPage() {
                   className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
                 >
                   Enregistrer l&apos;ordre
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleDeleteSelectedList()}
+                  disabled={!userId || !family || !selectedListId || lists.length <= 1 || isDeletingList}
+                  className="text-sm bg-rose-100 hover:bg-rose-200 text-rose-700 px-3 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
+                >
+                  {isDeletingList ? "Suppression..." : "Supprimer la liste"}
                 </button>
               </div>
             </div>

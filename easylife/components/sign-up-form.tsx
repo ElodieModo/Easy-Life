@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 
 export function SignUpForm({ nextPath = "/" }: { nextPath?: string }) {
   const router = useRouter();
@@ -64,7 +65,7 @@ export function SignUpForm({ nextPath = "/" }: { nextPath?: string }) {
         } else if (signUpError.message.includes("invalid email")) {
           setError("Format d'email invalide");
         } else {
-          setError(signUpError.message);
+          setError(getAuthErrorMessage(signUpError));
         }
       } else {
         // Si l'utilisateur est immédiatement confirmé (sans email requis en dev)

@@ -45,6 +45,7 @@ type DashboardSummary = {
   todayPlanningCount: number;
   upcomingCalendarCount: number;
   remainingShoppingCount: number;
+  remainingNotesCount: number;
   weeklyMenuFilledSlots: number;
   todayPlanningPreview: Array<{
     id: string;
@@ -83,7 +84,7 @@ function GuestHome() {
             </span>
           </h1>
           <p className="mt-5 text-lg md:text-xl text-slate-600 max-w-2xl">
-            L&apos;application qui centralise le quotidien de votre famille: planning, courses, adresses utiles et
+            L&apos;application qui centralise le quotidien de votre famille: planning, courses, notes, adresses utiles et
             coordination des enfants.
           </p>
 
@@ -113,6 +114,10 @@ function GuestHome() {
             <li className="flex gap-3">
               <span>🍽️</span>
               <span>Planifier le menu de la semaine et préparer les ingrédients</span>
+            </li>
+            <li className="flex gap-3">
+              <span>📝</span>
+              <span>Créer des listes de notes partagées ou privées</span>
             </li>
             <li className="flex gap-3">
               <span>📅</span>
@@ -226,6 +231,15 @@ function ConnectedHome({
           </Link>
 
           <Link
+            href="/protected/notes"
+            className="rounded-xl bg-white border border-slate-200 hover:border-rose-200 p-5 transition-colors"
+          >
+            <p className="text-2xl">📝</p>
+            <p className="font-semibold mt-2 text-slate-800">Notes</p>
+            <p className="text-slate-500 text-sm mt-1">Famille ou privé</p>
+          </Link>
+
+          <Link
             href="/protected/parametres"
             className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white p-5 transition-colors"
           >
@@ -236,7 +250,7 @@ function ConnectedHome({
         </div>
       </section>
 
-      <section className="mt-8 grid lg:grid-cols-4 gap-4">
+      <section className="mt-8 grid lg:grid-cols-5 gap-4">
         <article className="bg-white/80 rounded-xl border border-rose-100 p-5 shadow-sm">
           <p className="text-sm text-slate-500">Aujourd&apos;hui - Planning enfants</p>
           <p className="mt-1 text-3xl font-bold text-slate-800">{summary.todayPlanningCount}</p>
@@ -284,6 +298,18 @@ function ConnectedHome({
             className="inline-flex mt-4 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded transition-colors"
           >
             Ouvrir les courses
+          </Link>
+        </article>
+
+        <article className="bg-white/80 rounded-xl border border-rose-100 p-5 shadow-sm">
+          <p className="text-sm text-slate-500">Notes restantes</p>
+          <p className="mt-1 text-3xl font-bold text-slate-800">{summary.remainingNotesCount}</p>
+          <p className="text-sm text-slate-600 mt-2">Eléments non cochés dans vos listes de notes visibles</p>
+          <Link
+            href="/protected/notes"
+            className="inline-flex mt-4 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded transition-colors"
+          >
+            Ouvrir les notes
           </Link>
         </article>
 
@@ -360,6 +386,7 @@ async function PageContent() {
     todayPlanningCount: 0,
     upcomingCalendarCount: 0,
     remainingShoppingCount: 0,
+    remainingNotesCount: 0,
     weeklyMenuFilledSlots: 0,
     todayPlanningPreview: [],
     nextCalendarPreview: [],
@@ -393,7 +420,7 @@ async function PageContent() {
       mondayDate.setHours(0, 0, 0, 0);
       const mondayKey = mondayDate.toISOString().slice(0, 10);
 
-      const [planningResult, calendarResult, shoppingResult, childrenResult, connectionResult, weeklyMenuResult] = await Promise.all([
+      const [planningResult, calendarResult, shoppingResult, notesResult, childrenResult, connectionResult, weeklyMenuResult] = await Promise.all([
         supabase
           .from("family_child_planning_events")
           .select("id, child_id, title, start_at, end_at")
@@ -409,6 +436,11 @@ async function PageContent() {
           .limit(5),
         supabase
           .from("shopping_items")
+          .select("id", { count: "planned", head: true })
+          .eq("family_id", familyId)
+          .eq("done", false),
+        supabase
+          .from("family_note_items")
           .select("id", { count: "planned", head: true })
           .eq("family_id", familyId)
           .eq("done", false),
@@ -515,6 +547,7 @@ async function PageContent() {
         todayPlanningCount: todayPlanningRows.length,
         upcomingCalendarCount: calendarRows.length,
         remainingShoppingCount: shoppingResult.count ?? 0,
+        remainingNotesCount: notesResult.count ?? 0,
         weeklyMenuFilledSlots: weeklyMenuResult.count ?? 0,
         todayPlanningPreview: todayPlanningRows.slice(0, 3).map((eventRow) => {
           const startDate = new Date(eventRow.start_at);

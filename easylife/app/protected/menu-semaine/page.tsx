@@ -17,11 +17,6 @@ type FamilyMembershipRow = {
   family: FamilyPayload;
 };
 
-type ShoppingListRow = {
-  id: string;
-  name: string;
-};
-
 type WeeklyMenuRow = {
   id: string;
   day_of_week: number;
@@ -83,15 +78,6 @@ const getWeekLabel = (weekStartDateKey: string) => {
   return `${startLabel} - ${endLabel}`;
 };
 
-const normalizeListName = (name: string) =>
-  name.trim().toLowerCase() === "liste principale" ? "Notes diverses" : name;
-
-const extractIngredients = (input: string) =>
-  input
-    .split(/[,\n]/g)
-    .map((entry) => entry.trim())
-    .filter((entry) => entry.length > 0);
-
 export default function WeeklyMenuPage() {
   const supabase = useMemo(() => createClient(), []);
   const defaultOpenDay = (new Date().getDay() + 6) % 7;
@@ -101,11 +87,8 @@ export default function WeeklyMenuPage() {
   const [weekStartDate, setWeekStartDate] = useState(toDateKey(getMonday(new Date())));
   const [rowsByKey, setRowsByKey] = useState<Record<string, WeeklyMenuRow>>({});
   const [draftsByKey, setDraftsByKey] = useState<Record<string, MenuDraft>>({});
-  const [shoppingLists, setShoppingLists] = useState<ShoppingListRow[]>([]);
-  const [selectedShoppingListId, setSelectedShoppingListId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [openDayIndex, setOpenDayIndex] = useState<number>(defaultOpenDay);
@@ -114,19 +97,6 @@ export default function WeeklyMenuPage() {
 
   const filledSlotsCount = useMemo(() => {
     return Object.values(rowsByKey).filter((row) => row.title.trim().length > 0).length;
-  }, [rowsByKey]);
-
-  const allIngredients = useMemo(() => {
-    const set = new Set<string>();
-    for (const row of Object.values(rowsByKey)) {
-      if (!row.ingredients) {
-        continue;
-      }
-      for (const ingredient of extractIngredients(row.ingredients)) {
-        set.add(ingredient);
-      }
-    }
-    return [...set].sort((a, b) => a.localeCompare(b, "fr-FR"));
   }, [rowsByKey]);
 
   const loadFamilyAndLists = useCallback(async () => {
@@ -192,20 +162,6 @@ export default function WeeklyMenuPage() {
       setIsLoading(false);
       return;
     }
-
-    const { data: shoppingListRows } = await supabase
-      .from("shopping_lists")
-      .select("id, name")
-      .eq("family_id", activeFamily.id)
-      .order("created_at", { ascending: true });
-
-    const normalizedLists = ((shoppingListRows ?? []) as ShoppingListRow[]).map((row) => ({
-      id: row.id,
-      name: normalizeListName(row.name),
-    }));
-
-    setShoppingLists(normalizedLists);
-    setSelectedShoppingListId((previous) => previous ?? normalizedLists[0]?.id ?? null);
     setIsLoading(false);
   }, [supabase]);
 
@@ -439,62 +395,6 @@ export default function WeeklyMenuPage() {
     setIsSaving(false);
   };
 
-  const exportIngredientsToShoppingList = async (event: FormEvent) => {
-    event.preventDefault();
-
-    if (!family || !userId || !selectedShoppingListId) {
-      return;
-    }
-
-    if (allIngredients.length === 0) {
-      setErrorMessage("Aucun ingrédient à exporter depuis le menu de la semaine.");
-      return;
-    }
-
-    setIsExporting(true);
-    setErrorMessage(null);
-    setMessage(null);
-
-    const { data: existingRows } = await supabase
-      .from("shopping_items")
-      .select("name")
-      .eq("family_id", family.id)
-      .eq("list_id", selectedShoppingListId)
-      .eq("done", false);
-
-    const existingNames = new Set(
-      ((existingRows ?? []) as Array<{ name: string }>).map((row) => row.name.trim().toLowerCase()),
-    );
-
-    const toInsert = allIngredients
-      .filter((ingredient) => !existingNames.has(ingredient.trim().toLowerCase()))
-      .map((ingredient) => ({
-        family_id: family.id,
-        list_id: selectedShoppingListId,
-        created_by: userId,
-        name: ingredient,
-        quantity: "1",
-        done: false,
-      }));
-
-    if (toInsert.length === 0) {
-      setMessage("Tous les ingrédients sont déjà présents dans la liste sélectionnée.");
-      setIsExporting(false);
-      return;
-    }
-
-    const { error } = await supabase.from("shopping_items").insert(toInsert);
-
-    if (error) {
-      setErrorMessage("Impossible d'exporter les ingrédients vers la liste de courses.");
-      setIsExporting(false);
-      return;
-    }
-
-    setMessage(`${toInsert.length} ingrédient(s) ajouté(s) à la liste de courses.`);
-    setIsExporting(false);
-  };
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100 text-slate-800">
       <Navbar />
@@ -505,15 +405,9 @@ export default function WeeklyMenuPage() {
             <div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800">Menu de la semaine</h1>
               <p className="mt-1.5 sm:mt-2 text-sm sm:text-base text-slate-600">
-                Planifiez les dîners de la semaine, ajoutez les ingrédients et exportez-les vers vos courses.
+                Planifiez les dîners de la semaine et centralisez vos idées repas.
               </p>
             </div>
-            <Link
-              href="/protected/liste-courses"
-              className="w-full sm:w-auto text-center text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded border border-slate-200 transition-colors"
-            >
-              Ouvrir les courses
-            </Link>
           </div>
 
           <div className="mt-6 grid lg:grid-cols-[1fr_auto] gap-4 items-start">
@@ -637,53 +531,6 @@ export default function WeeklyMenuPage() {
               </div>
             </article>
           ))}
-        </section>
-
-        <section className="bg-white/85 rounded-xl border border-slate-200 p-5 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-bold text-slate-800">Ingrédients de la semaine</h2>
-              <p className="text-sm text-slate-600">Préparez rapidement votre liste de courses à partir du menu.</p>
-            </div>
-            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
-              {allIngredients.length} ingrédient(s)
-            </span>
-          </div>
-
-          {allIngredients.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-600">Ajoutez des ingrédients dans vos dîners pour les retrouver ici.</p>
-          ) : (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {allIngredients.map((ingredient) => (
-                <span key={ingredient} className="text-sm bg-slate-100 border border-slate-200 rounded-full px-3 py-1 text-slate-700">
-                  {ingredient}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <form onSubmit={exportIngredientsToShoppingList} className="mt-4 flex flex-wrap items-center gap-2">
-            <select
-              value={selectedShoppingListId ?? ""}
-              onChange={(event) => setSelectedShoppingListId(event.target.value || null)}
-              className="rounded border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-300"
-            >
-              {shoppingLists.length === 0 ? <option value="">Aucune liste disponible</option> : null}
-              {shoppingLists.map((list) => (
-                <option key={list.id} value={list.id}>
-                  {list.name}
-                </option>
-              ))}
-            </select>
-
-            <button
-              type="submit"
-              disabled={isExporting || !selectedShoppingListId || allIngredients.length === 0}
-              className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isExporting ? "Export en cours..." : "Ajouter aux courses"}
-            </button>
-          </form>
         </section>
       </div>
     </main>

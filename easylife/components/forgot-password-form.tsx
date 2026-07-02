@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 import { useState } from "react";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 
 export function ForgotPasswordForm({
   className,
@@ -49,7 +50,7 @@ export function ForgotPasswordForm({
       if (message.includes("invalid email")) {
         setError("Format d'email invalide");
       } else {
-        setError(message);
+        setError(getAuthErrorMessage(error));
       }
     } finally {
       setIsLoading(false);

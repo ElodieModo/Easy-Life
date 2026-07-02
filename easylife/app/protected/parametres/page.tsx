@@ -17,6 +17,12 @@ const settingsItems = [
     cta: "Ouvrir le module",
   },
   {
+    title: "Notes",
+    description: "Créer des listes de pense-bête ou de tâches, visibles par la famille ou privées.",
+    href: "/protected/notes",
+    cta: "Ouvrir le module",
+  },
+  {
     title: "Menu de la semaine",
     description: "Préparer les repas de la semaine et partager une vue claire pour toute la famille.",
     href: "/protected/menu-semaine",
