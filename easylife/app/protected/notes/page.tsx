@@ -128,7 +128,7 @@ export default function NotesPage() {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      setErrorMessage("Impossible de recuperer votre session utilisateur.");
+      setErrorMessage("Impossible de récupérer votre session utilisateur.");
       setIsLoadingLists(false);
       return;
     }
@@ -178,7 +178,7 @@ export default function NotesPage() {
       setLists([]);
       setSelectedListId(null);
       setItems([]);
-      setErrorMessage("Aucune famille active. Creez ou rejoignez une famille.");
+      setErrorMessage("Aucune famille active. Créez ou rejoignez une famille.");
       setIsLoadingLists(false);
       return;
     }
@@ -191,7 +191,7 @@ export default function NotesPage() {
 
     if (error) {
       setErrorMessage(
-        "La table family_note_lists est introuvable ou inaccessible. Executez la migration supabase/migration_add_notes.sql dans Supabase SQL Editor.",
+        "La table family_note_lists est introuvable ou inaccessible. Exécutez la migration supabase/migration_add_notes.sql dans Supabase SQL Editor.",
       );
       setIsLoadingLists(false);
       return;
@@ -261,7 +261,7 @@ export default function NotesPage() {
         .order("created_at", { ascending: true });
 
       if (error) {
-        setErrorMessage("Impossible de charger les elements de cette liste.");
+        setErrorMessage("Impossible de charger les éléments de cette liste.");
         setIsLoadingItems(false);
         return;
       }
@@ -399,7 +399,7 @@ export default function NotesPage() {
       .in("id", doneIds);
 
     if (error) {
-      setErrorMessage("Impossible de supprimer les elements coches.");
+      setErrorMessage("Impossible de supprimer les éléments cochés.");
       return;
     }
 
@@ -443,7 +443,7 @@ export default function NotesPage() {
 
               {selectedList ? (
                 <p className="text-xs text-slate-500">
-                  Visibilite: <span className="font-medium text-slate-700">{visibilityLabel[selectedList.visibility]}</span>
+                  Visibilité: <span className="font-medium text-slate-700">{visibilityLabel[selectedList.visibility]}</span>
                 </p>
               ) : null}
             </div>
@@ -453,7 +453,7 @@ export default function NotesPage() {
                 href="/protected/parametres/notes"
                 className="inline-flex bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded font-medium transition-colors"
               >
-                Parametres des notes
+                Paramètres des notes
               </Link>
             </div>
           </div>
@@ -480,9 +480,9 @@ export default function NotesPage() {
           {isLoadingLists || isLoadingItems ? (
             <p className="text-slate-500">Chargement des notes...</p>
           ) : !selectedListId ? (
-            <p className="text-slate-500">Creez une premiere liste de notes pour commencer.</p>
+            <p className="text-slate-500">Créez une première liste de notes pour commencer.</p>
           ) : items.length === 0 ? (
-            <p className="text-slate-500">Aucun element dans cette liste.</p>
+            <p className="text-slate-500">Aucun élément dans cette liste.</p>
           ) : (
             <>
               <ul className="space-y-3">
@@ -517,7 +517,7 @@ export default function NotesPage() {
                   onClick={() => void handleClearDone()}
                   className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded transition-colors"
                 >
-                  Retirer les elements coches
+                  Retirer les éléments cochés
                 </button>
               </div>
             </>

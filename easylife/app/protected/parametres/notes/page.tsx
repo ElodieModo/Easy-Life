@@ -115,7 +115,7 @@ export default function NotesSettingsPage() {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      setErrorMessage("Impossible de recuperer votre session utilisateur.");
+      setErrorMessage("Impossible de récupérer votre session utilisateur.");
       setIsLoading(false);
       return;
     }
@@ -166,7 +166,7 @@ export default function NotesSettingsPage() {
     if (!activeFamily) {
       setLists([]);
       setSelectedListId(null);
-      setErrorMessage("Aucune famille active. Creez ou rejoignez une famille.");
+      setErrorMessage("Aucune famille active. Créez ou rejoignez une famille.");
       setIsLoading(false);
       return;
     }
@@ -264,7 +264,7 @@ export default function NotesSettingsPage() {
       .single();
 
     if (error || !data) {
-      setErrorMessage(error?.message ?? "Impossible de creer cette liste.");
+      setErrorMessage(error?.message ?? "Impossible de créer cette liste.");
       setIsCreatingList(false);
       return;
     }
@@ -285,7 +285,7 @@ export default function NotesSettingsPage() {
     setSelectedListId(createdList.id);
     setNewListTitle("");
     setNewListVisibility("family");
-    setMessage("Nouvelle liste creee.");
+    setMessage("Nouvelle liste créée.");
     setIsCreatingList(false);
   };
 
@@ -329,7 +329,7 @@ export default function NotesSettingsPage() {
           : list,
       ),
     );
-    setMessage("Liste renommee.");
+    setMessage("Liste renommée.");
     setIsRenamingList(false);
   };
 
@@ -363,7 +363,7 @@ export default function NotesSettingsPage() {
     }
 
     persistListOrder(lists, userId, family.id);
-    setMessage("Ordre des listes enregistre.");
+    setMessage("Ordre des listes enregistré.");
   };
 
   const handleDeleteSelectedList = async () => {
@@ -372,7 +372,7 @@ export default function NotesSettingsPage() {
     }
 
     const listToDelete = lists.find((list) => list.id === selectedListId);
-    const confirmationMessage = `Supprimer la liste \"${listToDelete?.title ?? "cette liste"}\" ? Tous ses elements seront supprimes.`;
+    const confirmationMessage = `Supprimer la liste \"${listToDelete?.title ?? "cette liste"}\" ? Tous ses éléments seront supprimés.`;
 
     if (typeof window !== "undefined" && !window.confirm(confirmationMessage)) {
       return;
@@ -400,7 +400,7 @@ export default function NotesSettingsPage() {
     setLists(remainingLists);
     persistListOrder(remainingLists, userId, family.id);
     setSelectedListId(remainingLists[0]?.id ?? null);
-    setMessage("Liste supprimee.");
+    setMessage("Liste supprimée.");
     setIsDeletingList(false);
   };
 
@@ -412,8 +412,8 @@ export default function NotesSettingsPage() {
         <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">Parametres des notes</h1>
-              <p className="text-sm text-slate-600 mt-2">Creez et renommez vos listes de notes ici.</p>
+              <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">Paramètres des notes</h1>
+              <p className="text-sm text-slate-600 mt-2">Créez et renommez vos listes de notes ici.</p>
             </div>
             <Link
               href="/protected/notes"
@@ -447,7 +447,7 @@ export default function NotesSettingsPage() {
             </select>
             {selectedList ? (
               <p className="text-xs text-slate-500">
-                Visibilite: <span className="font-medium text-slate-700">{visibilityLabel[selectedList.visibility]}</span>
+                Visibilité: <span className="font-medium text-slate-700">{visibilityLabel[selectedList.visibility]}</span>
               </p>
             ) : null}
           </div>
@@ -539,7 +539,7 @@ export default function NotesSettingsPage() {
             disabled={!family || isCreatingList}
             className="bg-stone-700 hover:bg-stone-800 text-white px-4 py-2 rounded font-medium transition-colors disabled:opacity-50"
           >
-            {isCreatingList ? "Creation..." : "Creer la liste"}
+            {isCreatingList ? "Création..." : "Créer la liste"}
           </button>
         </form>
       </div>
