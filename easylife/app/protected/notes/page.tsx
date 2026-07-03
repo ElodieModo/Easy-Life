@@ -487,7 +487,7 @@ export default function NotesPage() {
             <>
               <ul className="space-y-3">
                 {items.map((item) => (
-                  <li key={item.id} className="flex items-center justify-between gap-3 border border-slate-200 rounded-lg p-3">
+                  <li key={item.id} className="flex items-center justify-between gap-3 border border-slate-200 rounded-lg p-4 bg-slate-50/40">
                     <label className="flex items-center gap-3 min-w-0 flex-1">
                       <input
                         type="checkbox"
@@ -495,9 +495,15 @@ export default function NotesPage() {
                         onChange={() => void handleToggleItem(item.id)}
                         className="h-5 w-5 accent-rose-500"
                       />
-                      <span className={`truncate ${item.done ? "line-through text-slate-400" : "text-slate-800"}`}>
-                        {item.content}
-                      </span>
+                      <div className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap [scrollbar-width:thin]">
+                        <span
+                          className={`inline-block min-w-max text-sm sm:text-base ${
+                            item.done ? "line-through text-slate-400" : "text-slate-800"
+                          }`}
+                        >
+                          {item.content}
+                        </span>
+                      </div>
                     </label>
 
                     <button

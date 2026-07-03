@@ -15,10 +15,10 @@ export function Navbar() {
   const mobileTabs = [
     { href: "/protected/liste-courses", label: "Courses", icon: "🛒" },
     { href: "/protected/notes", label: "Notes", icon: "📝" },
-    { href: "/protected/menu-semaine", label: "Menu", icon: "🍽️" },
-    { href: "/protected/planning-enfants", label: "Enfants", icon: "👧" },
+    { href: "/protected/planning-enfants", label: "Planning", icon: "👧" },
     { href: "/protected/calendrier-externe", label: "Calendrier partagé", icon: "📅" },
     { href: "/protected/adresses-utiles", label: "Adresses", icon: "📍" },
+    { href: "/protected/menu-semaine", label: "Menu", icon: "🍽️" },
   ];
 
   const handleRefresh = () => {
@@ -74,7 +74,7 @@ export function Navbar() {
               Menu de la semaine
             </Link>
             <Link href="/protected/planning-enfants" className="hover:text-sky-700 transition-colors">
-              Planning enfants
+              Planning
             </Link>
             <Link href="/protected/calendrier-externe" className="hover:text-sky-700 transition-colors">
               Calendrier partagé
@@ -156,10 +156,10 @@ export function Navbar() {
                   key={tab.href}
                   href={tab.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors active:scale-[0.98] ${
                     isActive
-                      ? "border-rose-200 bg-rose-50 text-rose-700"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-800"
+                      ? "border-rose-300 bg-rose-100 text-rose-800"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-800 active:border-rose-300 active:bg-rose-100 active:text-rose-800"
                   }`}
                 >
                   <span aria-hidden="true">{tab.icon}</span>

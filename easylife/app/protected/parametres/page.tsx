@@ -29,7 +29,7 @@ const settingsItems = [
     cta: "Ouvrir le module",
   },
   {
-    title: "Planning enfants",
+    title: "Planning",
     description:
       "Paramétrer les activités hebdomadaires, catégories, mode durée et enfants concernés.",
     href: "/protected/parametres/planning-enfants",
