@@ -563,8 +563,8 @@ export default function ShoppingListPage() {
     <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12">
-        <div className="mb-8 space-y-3">
+      <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="mb-6 space-y-2">
           <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">🛒 Liste de courses</h1>
           <p className="text-sm text-slate-500">{summaryText}</p>
           {errorMessage ? (
@@ -575,7 +575,7 @@ export default function ShoppingListPage() {
           ) : null}
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-5">
           <div className="grid sm:grid-cols-5 gap-3 items-end">
             <div className="sm:col-span-2 space-y-2">
               <label htmlFor="shopping-list-select" className="block text-sm font-medium text-slate-700 mb-1">
@@ -601,7 +601,7 @@ export default function ShoppingListPage() {
                   disabled={!canMoveUp}
                   aria-label="Monter la liste"
                   title="Monter"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded bg-amber-500 text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded bg-amber-500 text-sm text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
                 >
                   ↑
                 </button>
@@ -611,7 +611,7 @@ export default function ShoppingListPage() {
                   disabled={!canMoveDown}
                   aria-label="Descendre la liste"
                   title="Descendre"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded bg-amber-500 text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded bg-amber-500 text-sm text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
                 >
                   ↓
                 </button>
@@ -619,7 +619,7 @@ export default function ShoppingListPage() {
                   type="button"
                   onClick={handleSaveCurrentOrder}
                   disabled={!userId || !family || lists.length === 0}
-                  className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
+                  className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
                 >
                   Enregistrer l&apos;ordre
                 </button>
@@ -627,7 +627,7 @@ export default function ShoppingListPage() {
                   type="button"
                   onClick={() => void handleDeleteSelectedList()}
                   disabled={!userId || !family || !selectedListId || lists.length <= 1 || isDeletingList}
-                  className="text-sm bg-rose-100 hover:bg-rose-200 text-rose-700 px-3 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
+                  className="text-sm bg-rose-100 hover:bg-rose-200 text-rose-700 px-2.5 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
                 >
                   {isDeletingList ? "Suppression..." : "Supprimer la liste"}
                 </button>
@@ -645,7 +645,7 @@ export default function ShoppingListPage() {
               <button
                 type="submit"
                 disabled={!userId || !family || isCreatingList}
-                className="bg-stone-700 hover:bg-stone-800 text-white px-4 py-2 rounded font-medium transition-colors"
+                className="bg-stone-700 hover:bg-stone-800 text-white px-3 py-1.5 rounded font-medium transition-colors"
               >
                 {isCreatingList ? "Creation..." : "Creer une liste"}
               </button>
@@ -653,7 +653,7 @@ export default function ShoppingListPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-5">
           <form onSubmit={handleAddItem} className="grid sm:grid-cols-4 gap-3">
             <input
               type="text"
@@ -672,14 +672,14 @@ export default function ShoppingListPage() {
             <button
               type="submit"
               disabled={isSaving || !userId || !family || !selectedListId}
-              className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded font-medium transition-colors"
+              className="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded font-medium transition-colors"
             >
               {isSaving ? "Ajout..." : "Ajouter"}
             </button>
           </form>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-5">
           {isLoading ? (
             <div className="text-center py-10 text-slate-500">Chargement de la liste...</div>
           ) : items.length === 0 ? (
@@ -716,7 +716,7 @@ export default function ShoppingListPage() {
                     <button
                       type="button"
                       onClick={() => deleteItem(item.id)}
-                      className="text-sm bg-rose-100 hover:bg-rose-200 text-rose-700 px-3 py-1.5 rounded transition-colors"
+                      className="text-sm bg-rose-100 hover:bg-rose-200 text-rose-700 px-2.5 py-1.5 rounded transition-colors"
                     >
                       Supprimer
                     </button>
@@ -728,7 +728,7 @@ export default function ShoppingListPage() {
                 <button
                   type="button"
                   onClick={clearCompleted}
-                  className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded transition-colors"
+                  className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded transition-colors"
                 >
                   Retirer les articles cochés
                 </button>
