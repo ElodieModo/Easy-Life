@@ -82,7 +82,7 @@ export function SignUpForm({ nextPath = "/" }: { nextPath?: string }) {
             router.refresh();
           }
         } else {
-          // Redirection vers page de succès avec instruction
+          // Supabase envoie automatiquement l'email de confirmation via SendGrid
           router.push(`/auth/sign-up-success?next=${encodedNextPath}`);
         }
       }
