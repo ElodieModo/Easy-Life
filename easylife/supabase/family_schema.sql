@@ -323,8 +323,8 @@ begin
   from public.family_children fc
   where fc.family_id = new.family_id;
 
-  if child_count >= 3 then
-    raise exception 'Maximum 3 children per family is allowed';
+  if child_count >= 4 then
+    raise exception 'Maximum 4 children per family is allowed';
   end if;
 
   return new;

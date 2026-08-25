@@ -41,9 +41,9 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="bg-gradient-to-r from-stone-50 to-rose-50 text-slate-700 shadow-sm border-b border-stone-200">
+      <nav className="sticky top-0 z-40 border-b border-orange-200/80 bg-[#fffaf0]/95 text-slate-700 shadow-[0_4px_18px_rgba(75,55,25,0.08)] backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-[auto_1fr_auto] items-center py-3 gap-4">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 py-2.5 sm:py-3">
           <div className="justify-self-start">
             <Link href="/" aria-label="Easy Life" className="group flex items-center gap-2 min-w-0">
               <Image
@@ -54,23 +54,23 @@ export function Navbar() {
                 className="h-9 w-9 rounded-xl shadow-sm"
                 priority
               />
-              <span className="inline-flex items-center rounded-full px-3 sm:px-4 py-1 text-xs sm:text-sm md:text-base font-black tracking-wide text-white bg-gradient-to-r from-rose-600 via-fuchsia-500 to-orange-500 shadow-sm">
+              <span className="inline-flex items-center rounded-full bg-orange-500 px-2.5 py-1 text-xs font-black tracking-wide text-white shadow-sm sm:px-4 sm:text-sm md:text-base">
                 EASY LIFE
               </span>
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center gap-6 justify-self-center min-w-0">
-            <Link href="/" className="hover:text-rose-700 transition-colors">
+          <div className="hidden md:flex min-w-0 items-center justify-self-center gap-5 text-sm font-medium">
+            <Link href="/" className="transition-colors hover:text-orange-700">
               Accueil
             </Link>
-            <Link href="/protected/liste-courses" className="hover:text-rose-700 transition-colors">
+            <Link href="/protected/liste-courses" className="transition-colors hover:text-orange-700">
               Liste de courses
             </Link>
-            <Link href="/protected/notes" className="hover:text-rose-700 transition-colors">
+            <Link href="/protected/notes" className="transition-colors hover:text-orange-700">
               Notes
             </Link>
-            <Link href="/protected/menu-semaine" className="hover:text-rose-700 transition-colors">
+            <Link href="/protected/menu-semaine" className="transition-colors hover:text-orange-700">
               Menu de la semaine
             </Link>
             <Link href="/protected/planning-enfants" className="hover:text-sky-700 transition-colors">
@@ -84,48 +84,48 @@ export function Navbar() {
             </Link>
           </div>
 
-          <div className="hidden md:flex flex-col items-stretch gap-2 w-48 justify-self-end">
+          <div className="hidden md:flex w-44 flex-col items-stretch justify-self-end gap-1.5">
             <Link
               href="/"
-              className="text-center bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded font-medium transition-colors"
+              className="rounded-lg bg-orange-500 px-3 py-2 text-center font-semibold text-white transition-colors hover:bg-orange-600"
             >
               Accueil
             </Link>
             <Link
               href="/protected/parametres"
-              className="text-center bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded font-medium transition-colors"
+              className="rounded-lg bg-amber-400 px-3 py-2 text-center font-semibold text-amber-950 transition-colors hover:bg-amber-500"
             >
               Paramètres
             </Link>
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="text-center bg-sky-500 hover:bg-sky-600 text-white px-3 py-2 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg bg-teal-500 px-3 py-2 text-center font-semibold text-white transition-colors hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isRefreshing ? "Actualisation..." : "🔄 Actualiser"}
             </button>
             <button
               onClick={handleLogout}
               disabled={isLoading || isRefreshing}
-              className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg bg-slate-800 px-4 py-2 font-semibold text-white transition-colors hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "Déconnexion..." : "Se déconnecter"}
             </button>
           </div>
         </div>
 
-        <div className="md:hidden pb-3">
-          <div className="grid grid-cols-3 gap-1.5 rounded-2xl border border-rose-100 bg-white/90 p-1.5 shadow-sm">
+        <div className="pb-2.5 md:hidden">
+          <div className="grid grid-cols-3 gap-1 rounded-xl border border-orange-200 bg-white/90 p-1 shadow-sm">
             <Link
               href="/"
-              className="inline-flex items-center justify-center rounded-lg border border-orange-200 bg-orange-50 px-1.5 py-1 text-xs font-semibold text-orange-700"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 px-1 text-xs font-semibold text-orange-700"
             >
               Accueil
             </Link>
 
             <Link
               href="/protected/parametres"
-              className="inline-flex items-center justify-center rounded-lg border border-amber-200 bg-amber-50 px-1.5 py-1 text-xs font-semibold text-amber-700"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 px-1 text-xs font-semibold text-amber-700"
             >
               Param.
             </Link>
@@ -133,7 +133,7 @@ export function Navbar() {
             <button
               onClick={handleLogout}
               disabled={isLoading}
-              className="inline-flex items-center justify-center rounded-lg border border-rose-200 bg-rose-50 px-1.5 py-1 text-xs font-semibold text-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "..." : "Déco"}
             </button>
@@ -142,12 +142,12 @@ export function Navbar() {
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="mt-2 inline-flex w-full items-center justify-center rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-teal-200 bg-teal-50 px-3 py-2 text-sm font-semibold text-teal-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isRefreshing ? "Actualisation..." : "🔄 Actualiser"}
           </button>
 
-          <div className="mt-2 flex items-center gap-2 overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="mt-2 flex snap-x items-center gap-2 overflow-x-auto pb-1 whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {mobileTabs.map((tab) => {
               const isActive = pathname === tab.href || pathname?.startsWith(`${tab.href}/`);
 
@@ -156,10 +156,10 @@ export function Navbar() {
                   key={tab.href}
                   href={tab.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors active:scale-[0.98] ${
+                  className={`inline-flex min-h-11 shrink-0 snap-start items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors active:scale-[0.98] ${
                     isActive
-                      ? "border-rose-300 bg-rose-100 text-rose-800"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-800 active:border-rose-300 active:bg-rose-100 active:text-rose-800"
+                      ? "border-orange-300 bg-orange-100 text-orange-900 shadow-sm"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-orange-300 hover:text-slate-800 active:border-orange-300 active:bg-orange-100 active:text-orange-900"
                   }`}
                 >
                   <span aria-hidden="true">{tab.icon}</span>

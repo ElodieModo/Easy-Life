@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";

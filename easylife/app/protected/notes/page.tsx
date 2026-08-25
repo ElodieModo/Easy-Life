@@ -108,15 +108,6 @@ export default function NotesPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const persistListOrder = (orderedLists: NoteList[], currentUserId: string, familyId: string) => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const storageKey = getNotesListOrderStorageKey(currentUserId, familyId);
-    window.localStorage.setItem(storageKey, JSON.stringify(orderedLists.map((list) => list.id)));
-  };
-
   const loadLists = useCallback(async () => {
     setIsLoadingLists(true);
     setMessage(null);
@@ -461,17 +452,17 @@ export default function NotesPage() {
 
         <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
           <form onSubmit={handleAddItem} className="grid sm:grid-cols-4 gap-3 mb-6">
-            <input
-              type="text"
+            <textarea
+              rows={5}
               value={newItemContent}
               onChange={(event) => setNewItemContent(event.target.value)}
-              placeholder="Ex: Penser a prendre les papiers"
-              className="sm:col-span-3 px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
+              placeholder="Écrivez votre note ici..."
+              className="sm:col-span-3 min-h-32 resize-y px-4 py-3 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
             />
             <button
               type="submit"
               disabled={!selectedListId || isSavingItem}
-              className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded font-medium transition-colors disabled:opacity-50"
+              className="self-start bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded font-medium transition-colors disabled:opacity-50"
             >
               {isSavingItem ? "Ajout..." : "Ajouter"}
             </button>
@@ -495,7 +486,7 @@ export default function NotesPage() {
                         onChange={() => void handleToggleItem(item.id)}
                         className="h-5 w-5 accent-rose-500"
                       />
-                      <div className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap [scrollbar-width:thin]">
+                      <div className="min-w-0 flex-1 break-words whitespace-pre-wrap">
                         <span
                           className={`inline-block min-w-max text-sm sm:text-base ${
                             item.done ? "line-through text-slate-400" : "text-slate-800"

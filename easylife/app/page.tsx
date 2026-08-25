@@ -125,7 +125,7 @@ function GuestHome() {
             </li>
             <li className="flex gap-3">
               <span>👧</span>
-              <span>Planifier le quotidien de vos enfants (jusqu&apos;à 3)</span>
+              <span>Planifier le quotidien de vos enfants (jusqu&apos;à 4)</span>
             </li>
             <li className="flex gap-3">
               <span>📍</span>
@@ -200,7 +200,7 @@ function ConnectedHome({
           >
             <p className="text-2xl">👧</p>
             <p className="font-semibold mt-2 text-slate-800">Planning enfants</p>
-            <p className="text-slate-500 text-sm mt-1">Jusqu&apos;à 3 enfants</p>
+            <p className="text-slate-500 text-sm mt-1">Jusqu&apos;à 4 enfants</p>
           </Link>
 
           <Link
@@ -589,7 +589,7 @@ async function PageContent() {
 
 function PageSkeleton() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100 text-slate-800">
+    <main className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-teal-50 text-slate-800">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 sm:py-20">
         <div className="text-center mb-16 animate-pulse">
           <div className="h-16 bg-rose-200 rounded mb-6 w-3/4 mx-auto"></div>
@@ -603,7 +603,7 @@ function PageSkeleton() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen w-full bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100 text-slate-800">
+    <main className="min-h-screen w-full bg-gradient-to-br from-amber-50 via-orange-50 to-teal-50 text-slate-800">
       <Suspense fallback={<PageSkeleton />}>
         <PageContent />
       </Suspense>

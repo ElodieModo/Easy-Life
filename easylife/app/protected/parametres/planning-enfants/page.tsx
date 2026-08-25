@@ -168,8 +168,8 @@ export default function PlanningChildrenSettingsPage() {
       return;
     }
 
-    if (!editingChildId && children.length >= 3) {
-      setErrorMessage("Maximum 3 enfants par famille.");
+    if (!editingChildId && children.length >= 4) {
+      setErrorMessage("Maximum 4 enfants par famille.");
       return;
     }
 
@@ -324,7 +324,7 @@ export default function PlanningChildrenSettingsPage() {
               </div>
               <button
                 type="submit"
-                disabled={isSaving || !family || (!editingChildId && children.length >= 3)}
+                disabled={isSaving || !family || (!editingChildId && children.length >= 4)}
                 className="w-full bg-rose-600 hover:bg-rose-700 text-white px-4 py-1.5 rounded font-medium transition-colors disabled:opacity-50"
               >
                 {isSaving
@@ -333,7 +333,7 @@ export default function PlanningChildrenSettingsPage() {
                     : "Ajout..."
                   : editingChildId
                     ? "Enregistrer"
-                    : children.length >= 3
+                    : children.length >= 4
                       ? "Limite atteinte"
                       : "Ajouter l'enfant"}
               </button>
