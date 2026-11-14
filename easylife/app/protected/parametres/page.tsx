@@ -23,12 +23,6 @@ const settingsItems = [
     cta: "Configurer le module",
   },
   {
-    title: "Menu de la semaine",
-    description: "Préparer les repas de la semaine et partager une vue claire pour toute la famille.",
-    href: "/protected/menu-semaine",
-    cta: "Ouvrir le module",
-  },
-  {
     title: "Planning",
     description:
       "Paramétrer les activités hebdomadaires, catégories, mode durée et enfants concernés.",

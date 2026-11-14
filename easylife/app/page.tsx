@@ -46,7 +46,6 @@ type DashboardSummary = {
   upcomingCalendarCount: number;
   remainingShoppingCount: number;
   remainingNotesCount: number;
-  weeklyMenuFilledSlots: number;
   todayPlanningPreview: Array<{
     id: string;
     title: string;
@@ -212,15 +211,6 @@ function ConnectedHome({
           </Link>
 
           <Link
-            href="/protected/menu-semaine"
-            className="group min-h-32 rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 sm:p-5"
-          >
-            <p className="text-2xl">🍽️</p>
-            <p className="font-semibold mt-2 text-slate-800">Menu de la semaine</p>
-            <p className="text-slate-500 text-sm mt-1">Repas + ingrédients</p>
-          </Link>
-
-          <Link
             href="/protected/adresses-utiles"
             className="group min-h-32 rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 sm:p-5"
           >
@@ -342,17 +332,6 @@ function ConnectedHome({
           </Link>
         </article>
 
-        <article className="bg-white/80 rounded-xl border border-rose-100 p-5 shadow-sm">
-          <p className="text-sm text-slate-500">Menu de la semaine</p>
-          <p className="mt-1 text-3xl font-bold text-slate-800">{summary.weeklyMenuFilledSlots}/7</p>
-          <p className="text-sm text-slate-600 mt-2">Dîners renseignés pour la semaine en cours</p>
-          <Link
-            href="/protected/menu-semaine"
-            className="inline-flex mt-4 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded transition-colors"
-          >
-            Ouvrir le menu
-          </Link>
-        </article>
         </div>
       </section>
 
@@ -473,7 +452,6 @@ async function PageContent() {
     upcomingCalendarCount: 0,
     remainingShoppingCount: 0,
     remainingNotesCount: 0,
-    weeklyMenuFilledSlots: 0,
     todayPlanningPreview: [],
     nextCalendarPreview: [],
     notifications: [],
@@ -500,13 +478,8 @@ async function PageContent() {
 
     if (familyId) {
       const now = new Date();
-      const mondayOffset = (now.getDay() + 6) % 7;
-      const mondayDate = new Date(now);
-      mondayDate.setDate(now.getDate() - mondayOffset);
-      mondayDate.setHours(0, 0, 0, 0);
-      const mondayKey = mondayDate.toISOString().slice(0, 10);
 
-      const [planningResult, calendarResult, shoppingResult, notesResult, childrenResult, connectionResult, weeklyMenuResult] = await Promise.all([
+      const [planningResult, calendarResult, shoppingResult, notesResult, childrenResult, connectionResult] = await Promise.all([
         supabase
           .from("family_child_planning_events")
           .select("id, child_id, title, start_at, end_at")
@@ -532,12 +505,6 @@ async function PageContent() {
           .eq("done", false),
         supabase.from("family_children").select("id, name").eq("family_id", familyId),
         supabase.from("family_calendar_connections").select("last_synced_at").eq("family_id", familyId).maybeSingle(),
-        supabase
-          .from("family_weekly_menu_items")
-          .select("id", { count: "planned", head: true })
-          .eq("family_id", familyId)
-          .eq("meal_slot", "diner")
-          .eq("week_start_date", mondayKey),
       ]);
 
       const todayWeekday = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][
@@ -634,7 +601,6 @@ async function PageContent() {
         upcomingCalendarCount: calendarRows.length,
         remainingShoppingCount: shoppingResult.count ?? 0,
         remainingNotesCount: notesResult.count ?? 0,
-        weeklyMenuFilledSlots: weeklyMenuResult.count ?? 0,
         todayPlanningPreview: todayPlanningRows.slice(0, 3).map((eventRow) => {
           const startDate = new Date(eventRow.start_at);
           const endDate = new Date(eventRow.end_at);
