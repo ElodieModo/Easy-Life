@@ -28,6 +28,16 @@ create table if not exists public.family_invites (
   unique (family_id, email, status)
 );
 
+create table if not exists public.family_push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  family_id uuid not null references public.families(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  endpoint text not null unique,
+  subscription jsonb not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.shopping_lists (
   id uuid primary key default gen_random_uuid(),
   family_id uuid not null references public.families(id) on delete cascade,
@@ -324,6 +334,7 @@ execute function public.enforce_max_three_children_per_family();
 alter table public.families enable row level security;
 alter table public.family_members enable row level security;
 alter table public.family_invites enable row level security;
+alter table public.family_push_subscriptions enable row level security;
 alter table public.shopping_lists enable row level security;
 alter table public.shopping_items enable row level security;
 alter table public.family_calendar_connections enable row level security;

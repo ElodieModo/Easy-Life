@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
+import { PushNotificationSettings } from "@/components/push-notification-settings";
 
 const settingsItems = [
   {
@@ -57,6 +58,8 @@ export default function SettingsPage() {
             écran pour garder une interface simple.
           </p>
         </div>
+
+        <PushNotificationSettings />
 
         <div className="grid md:grid-cols-2 gap-4">
           {settingsItems.map((item) => (

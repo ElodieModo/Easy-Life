@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
+import { notifyFamilyChange } from "@/lib/push-notifications";
 import Link from "next/link";
 
 type FamilyInfo = {
@@ -321,6 +322,9 @@ export default function NotesPage() {
 
     setItems((previous) => [...previous, newItem]);
     setNewItemContent("");
+    if (selectedList?.visibility === "family") {
+      void notifyFamilyChange({ module: "notes", action: "added", listId: selectedList.id });
+    }
     setIsSavingItem(false);
   };
 
@@ -354,6 +358,9 @@ export default function NotesPage() {
           : item,
       ),
     );
+    if (selectedList?.visibility === "family") {
+      void notifyFamilyChange({ module: "notes", action: "updated", listId: selectedList.id });
+    }
   };
 
   const handleDeleteItem = async (itemId: string) => {
@@ -368,6 +375,9 @@ export default function NotesPage() {
     }
 
     setItems((previous) => previous.filter((item) => item.id !== itemId));
+    if (selectedList?.visibility === "family") {
+      void notifyFamilyChange({ module: "notes", action: "removed", listId: selectedList.id });
+    }
   };
 
   const handleClearDone = async () => {
@@ -395,6 +405,9 @@ export default function NotesPage() {
     }
 
     setItems((previous) => previous.filter((item) => !item.done));
+    if (selectedList?.visibility === "family") {
+      void notifyFamilyChange({ module: "notes", action: "removed", listId: selectedList.id });
+    }
   };
 
   const summaryText = `${family ? `Famille active: ${family.name}` : "Famille active: Aucune"} · Liste: ${selectedList?.title ?? "Aucune"} · ${doneCount}/${items.length} traite(s)`;

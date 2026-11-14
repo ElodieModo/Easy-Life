@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Easy Life",
     short_name: "Easy Life",
-    description: "Organisation familiale: planning, courses, menu et informations utiles.",
+    description: "Organisation familiale: planning, courses, notes et informations utiles.",
     start_url: "/",
     display: "standalone",
     background_color: "#f9f6f5",

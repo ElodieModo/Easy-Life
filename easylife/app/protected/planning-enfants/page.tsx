@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
+import { notifyFamilyChange } from "@/lib/push-notifications";
 import Link from "next/link";
 
 type FamilyInfo = {
@@ -536,6 +537,7 @@ export default function ChildrenPlanningPage() {
 
       resetEventForm();
       setMessage("Événement modifié.");
+      void notifyFamilyChange({ module: "planning", action: "updated" });
       setIsSavingEvent(false);
       return;
     }
@@ -575,6 +577,7 @@ export default function ChildrenPlanningPage() {
     setEvents((previous) => [...previous, ...newEvents].sort((a, b) => a.startAt.localeCompare(b.startAt)));
     resetEventForm();
     setMessage(`Événement ajouté pour ${newEvents.length} enfant(s).`);
+    void notifyFamilyChange({ module: "planning", action: "added" });
     setIsSavingEvent(false);
   };
 
@@ -591,6 +594,7 @@ export default function ChildrenPlanningPage() {
 
     setEvents((previous) => previous.filter((planningEvent) => planningEvent.id !== eventId));
     setMessage("Événement supprimé.");
+    void notifyFamilyChange({ module: "planning", action: "removed" });
   };
 
   const eventsForFilteredChildren = useMemo(() => {
@@ -682,7 +686,26 @@ export default function ChildrenPlanningPage() {
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 flex flex-col gap-6 sm:gap-8">
-        <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">Planning des enfants</h1>
+        <header className="flex flex-col gap-4 rounded-2xl border border-sky-100 bg-white/85 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-sky-700">Organisation familiale</p>
+            <h1 className="mt-1 text-2xl font-bold text-slate-800 sm:text-3xl">Planning des enfants</h1>
+            <p className="mt-1 text-sm text-slate-600">
+              {family ? `Semaine type · ${family.name}` : "Organisez les activités récurrentes de la semaine."}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-slate-600">
+              {events.length} activité{events.length > 1 ? "s" : ""}
+            </span>
+            <Link
+              href="#planning-event-form"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
+            >
+              + Ajouter
+            </Link>
+          </div>
+        </header>
 
         {message ? (
           <p className="text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded p-3">{message}</p>
@@ -691,13 +714,13 @@ export default function ChildrenPlanningPage() {
           <p className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded p-3">{errorMessage}</p>
         ) : null}
 
-        <div id="planning-event-form" className="order-2 bg-white rounded-lg shadow-md p-6">
+        <div id="planning-event-form" className="order-2 scroll-mt-24 rounded-lg bg-white p-5 shadow-md sm:p-6">
             <h2 className="text-xl font-bold text-slate-800 mb-4">
               {editingEventId ? "Modifier un événement" : "Ajouter un événement"}
             </h2>
             <form onSubmit={handleAddEvent} noValidate className="space-y-3">
-              <div className="rounded border border-slate-300 p-3">
-                <p className="text-sm font-medium text-slate-700 mb-2">Cette activité concerne :</p>
+              <fieldset className="rounded border border-slate-300 p-3">
+                <legend className="px-1 text-sm font-medium text-slate-700">Pour quels enfants ?</legend>
                 {children.length === 0 ? (
                   <p className="text-sm text-slate-500">
                     Ajoutez au moins un enfant dans les paramètres du planning.
@@ -711,6 +734,7 @@ export default function ChildrenPlanningPage() {
                           key={child.id}
                           type="button"
                           onClick={() => toggleEventChildSelection(child.id)}
+                          aria-pressed={isChecked}
                           className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition-colors ${
                             isChecked
                               ? "border-rose-500 bg-rose-50 text-rose-700"
@@ -724,32 +748,49 @@ export default function ChildrenPlanningPage() {
                     })}
                   </div>
                 )}
+              </fieldset>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="planning-event-title" className="mb-1 block text-sm font-medium text-slate-700">
+                    Nom de l&apos;activité
+                  </label>
+                  <input
+                    id="planning-event-title"
+                    type="text"
+                    value={eventTitle}
+                    onChange={(inputEvent) => setEventTitle(inputEvent.target.value)}
+                    placeholder="Ex. école, football, médecin"
+                    className="w-full rounded border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="planning-event-category" className="mb-1 block text-sm font-medium text-slate-700">
+                    Catégorie
+                  </label>
+                  <select
+                    id="planning-event-category"
+                    value={eventCategory}
+                    onChange={(inputEvent) => setEventCategory(inputEvent.target.value as ActivityCategory)}
+                    className="w-full rounded border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  >
+                    <option value="ecole">École</option>
+                    <option value="sport">Sport</option>
+                    <option value="club">Club</option>
+                    <option value="pick_up_time">Pick up time</option>
+                    <option value="autre">Autre</option>
+                  </select>
+                </div>
               </div>
 
-              <input
-                type="text"
-                value={eventTitle}
-                onChange={(inputEvent) => setEventTitle(inputEvent.target.value)}
-                placeholder="Titre (école, sport, médecin...)"
-                className="w-full px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
-              />
-
-              <select
-                value={eventCategory}
-                onChange={(inputEvent) => setEventCategory(inputEvent.target.value as ActivityCategory)}
-                className="w-full px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
-              >
-                <option value="ecole">École</option>
-                <option value="sport">Sport</option>
-                <option value="club">Club</option>
-                <option value="pick_up_time">Pick up time</option>
-                <option value="autre">Autre</option>
-              </select>
-
-              <div className="grid grid-cols-2 gap-2">
+              <div>
+                <p className="mb-1 text-sm font-medium text-slate-700">Comment définir la fin ?</p>
+                <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setEventTimeMode("manual-end")}
+                  aria-pressed={eventTimeMode === "manual-end"}
                   className={`px-3 py-2 rounded border text-sm font-medium transition-colors ${
                     eventTimeMode === "manual-end"
                       ? "border-rose-500 bg-rose-50 text-rose-700"
@@ -761,6 +802,7 @@ export default function ChildrenPlanningPage() {
                 <button
                   type="button"
                   onClick={() => setEventTimeMode("duration")}
+                  aria-pressed={eventTimeMode === "duration"}
                   className={`px-3 py-2 rounded border text-sm font-medium transition-colors ${
                     eventTimeMode === "duration"
                       ? "border-rose-500 bg-rose-50 text-rose-700"
@@ -769,43 +811,68 @@ export default function ChildrenPlanningPage() {
                 >
                   Durée
                 </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <select
-                  value={eventWeekday}
-                  onChange={(inputEvent) => setEventWeekday(inputEvent.target.value as Weekday)}
-                  className="px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
-                >
-                  {weekdayOrder.map((weekday) => (
-                    <option key={weekday} value={weekday}>
-                      {weekdayLabel[weekday]}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="time"
-                  value={eventStartTime}
-                  onChange={(inputEvent) => setEventStartTime(inputEvent.target.value)}
-                  className="px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
-                />
-                {eventTimeMode === "manual-end" ? (
+                <div>
+                  <label htmlFor="planning-event-day" className="mb-1 block text-sm font-medium text-slate-700">
+                    Jour
+                  </label>
+                  <select
+                    id="planning-event-day"
+                    value={eventWeekday}
+                    onChange={(inputEvent) => setEventWeekday(inputEvent.target.value as Weekday)}
+                    className="w-full rounded border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  >
+                    {weekdayOrder.map((weekday) => (
+                      <option key={weekday} value={weekday}>
+                        {weekdayLabel[weekday]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="planning-event-start" className="mb-1 block text-sm font-medium text-slate-700">
+                    Heure de début
+                  </label>
                   <input
+                    id="planning-event-start"
                     type="time"
-                    value={eventEndTime}
-                    onChange={(inputEvent) => setEventEndTime(inputEvent.target.value)}
-                    className="px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    value={eventStartTime}
+                    onChange={(inputEvent) => setEventStartTime(inputEvent.target.value)}
+                    className="w-full rounded border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500"
                   />
+                </div>
+                {eventTimeMode === "manual-end" ? (
+                  <div>
+                    <label htmlFor="planning-event-end" className="mb-1 block text-sm font-medium text-slate-700">
+                      Heure de fin
+                    </label>
+                    <input
+                      id="planning-event-end"
+                      type="time"
+                      value={eventEndTime}
+                      onChange={(inputEvent) => setEventEndTime(inputEvent.target.value)}
+                      className="w-full rounded border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
+                  </div>
                 ) : (
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={eventDurationMinutes}
-                    onChange={(inputEvent) => setEventDurationMinutes(inputEvent.target.value.replace(/\D/g, ""))}
-                    placeholder="Durée en minutes"
-                    className="px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
-                  />
+                  <div>
+                    <label htmlFor="planning-event-duration" className="mb-1 block text-sm font-medium text-slate-700">
+                      Durée (minutes)
+                    </label>
+                    <input
+                      id="planning-event-duration"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={eventDurationMinutes}
+                      onChange={(inputEvent) => setEventDurationMinutes(inputEvent.target.value.replace(/\D/g, ""))}
+                      placeholder="Ex. 60"
+                      className="w-full rounded border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
+                  </div>
                 )}
               </div>
 
@@ -836,13 +903,19 @@ export default function ChildrenPlanningPage() {
                 </div>
               ) : null}
 
-              <textarea
-                value={eventNotes}
-                onChange={(inputEvent) => setEventNotes(inputEvent.target.value)}
-                placeholder="Notes (optionnel)"
-                className="w-full px-4 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
-                rows={3}
-              />
+              <div>
+                <label htmlFor="planning-event-notes" className="mb-1 block text-sm font-medium text-slate-700">
+                  Notes <span className="font-normal text-slate-500">(facultatif)</span>
+                </label>
+                <textarea
+                  id="planning-event-notes"
+                  value={eventNotes}
+                  onChange={(inputEvent) => setEventNotes(inputEvent.target.value)}
+                  placeholder="Informations utiles pour la famille"
+                  className="w-full rounded border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  rows={3}
+                />
+              </div>
 
               <button
                 type="submit"
@@ -884,6 +957,7 @@ export default function ChildrenPlanningPage() {
               <button
                 type="button"
                 onClick={() => setPlanningViewMode("list")}
+                aria-pressed={planningViewMode === "list"}
                 className={`flex-1 sm:flex-none px-3 py-2 rounded border text-sm font-medium transition-colors ${
                   planningViewMode === "list"
                     ? "border-rose-500 bg-rose-50 text-rose-700"
@@ -895,6 +969,7 @@ export default function ChildrenPlanningPage() {
               <button
                 type="button"
                 onClick={() => setPlanningViewMode("week")}
+                aria-pressed={planningViewMode === "week"}
                 className={`flex-1 sm:flex-none px-3 py-2 rounded border text-sm font-medium transition-colors ${
                   planningViewMode === "week"
                     ? "border-rose-500 bg-rose-50 text-rose-700"
@@ -912,6 +987,7 @@ export default function ChildrenPlanningPage() {
                 <button
                   type="button"
                   onClick={() => setPlanningChildFilter(ALL_CHILDREN_FILTER)}
+                  aria-pressed={planningChildFilter === ALL_CHILDREN_FILTER}
                   className={`px-3 py-2 rounded-full border text-sm font-medium transition-colors whitespace-nowrap ${
                     planningChildFilter === ALL_CHILDREN_FILTER
                       ? "border-rose-500 bg-rose-50 text-rose-700"
@@ -927,6 +1003,7 @@ export default function ChildrenPlanningPage() {
                       key={child.id}
                       type="button"
                       onClick={() => setPlanningChildFilter(child.id)}
+                      aria-pressed={isSelected}
                       className={`inline-flex items-center gap-2 px-3 py-2 rounded-full border text-sm font-medium transition-colors whitespace-nowrap ${
                         isSelected
                           ? "border-rose-500 bg-rose-50 text-rose-700"
@@ -942,6 +1019,7 @@ export default function ChildrenPlanningPage() {
             </div>
 
             <input
+              aria-label="Rechercher une activité"
               type="search"
               value={planningSearch}
               onChange={(inputEvent) => setPlanningSearch(inputEvent.target.value)}
@@ -949,6 +1027,14 @@ export default function ChildrenPlanningPage() {
               className="w-full sm:w-96 px-3 py-2 rounded border border-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
             />
           </div>
+
+          {!isLoading ? (
+            <p className="mb-3 text-sm text-slate-500" aria-live="polite">
+              {filteredEventsForPlanning.length} résultat{filteredEventsForPlanning.length > 1 ? "s" : ""}
+              {planningChildFilter === ALL_CHILDREN_FILTER ? " pour tous les enfants" : ""}
+              {normalizedPlanningSearch ? ` pour « ${planningSearch.trim()} »` : ""}
+            </p>
+          ) : null}
 
           {isLoading ? (
             <p className="text-sm text-slate-500">Chargement...</p>
@@ -958,12 +1044,12 @@ export default function ChildrenPlanningPage() {
                 Aucun événement ne correspond à la recherche et aux filtres actuels.
               </p>
               <p className="mt-1 text-sm text-slate-600">Modifiez les filtres ou créez une activité.</p>
-              <a
+              <Link
                 href="#planning-event-form"
                 className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
               >
                 Ajouter un événement
-              </a>
+              </Link>
             </div>
           ) : (
             <ul className="space-y-3">
@@ -1052,6 +1138,13 @@ export default function ChildrenPlanningPage() {
                                 style={{ borderLeftColor: childColor }}
                               >
                                 <p className="text-xs font-semibold text-slate-800">{planningEvent.title}</p>
+                                <span
+                                  className={`mt-1 inline-block rounded border px-1.5 py-0.5 text-[10px] font-medium ${
+                                    categoryClasses[planningEvent.category]
+                                  }`}
+                                >
+                                  {categoryLabel[planningEvent.category]}
+                                </span>
                                 <p className="text-[11px] text-slate-500 mt-0.5">
                                   {new Date(planningEvent.startAt).toLocaleTimeString("fr-FR", {
                                     hour: "2-digit",
@@ -1063,18 +1156,24 @@ export default function ChildrenPlanningPage() {
                                     minute: "2-digit",
                                   })}
                                 </p>
-                                <div className="mt-1 flex items-center gap-1.5">
+                                <p className="mt-1 text-[11px] text-slate-600">
+                                  {linkedChild?.name ?? "Enfant"}
+                                </p>
+                                {planningEvent.notes ? (
+                                  <p className="mt-1 line-clamp-2 text-[11px] text-slate-500">{planningEvent.notes}</p>
+                                ) : null}
+                                <div className="mt-2 flex items-center gap-2">
                                   <button
                                     type="button"
                                     onClick={() => handleStartEditEvent(planningEvent)}
-                                    className="text-[10px] bg-sky-100 text-sky-700 hover:bg-sky-200 px-2 py-1 rounded"
+                                    className="min-h-10 flex-1 rounded bg-sky-100 px-3 py-2 text-xs font-medium text-sky-700 hover:bg-sky-200"
                                   >
                                     Modifier
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => void handleDeleteEvent(planningEvent.id)}
-                                    className="text-[10px] bg-rose-100 text-rose-700 hover:bg-rose-200 px-2 py-1 rounded"
+                                    className="min-h-10 flex-1 rounded bg-rose-100 px-3 py-2 text-xs font-medium text-rose-700 hover:bg-rose-200"
                                   >
                                     Supprimer
                                   </button>

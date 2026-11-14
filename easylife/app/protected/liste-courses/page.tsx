@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
+import { notifyFamilyChange } from "@/lib/push-notifications";
 
 type ShoppingItem = {
   id: string;
@@ -344,6 +345,7 @@ export default function ShoppingListPage() {
     setItems((previous) => [newItem, ...previous]);
     setName("");
     setQuantity("");
+    void notifyFamilyChange({ module: "shopping", action: "added", listId: selectedListId });
     setIsSaving(false);
   };
 
@@ -381,6 +383,7 @@ export default function ShoppingListPage() {
           : item,
       ),
     );
+    void notifyFamilyChange({ module: "shopping", action: "updated", listId: selectedListId });
   };
 
   const deleteItem = async (id: string) => {
@@ -403,6 +406,7 @@ export default function ShoppingListPage() {
     }
 
     setItems((previous) => previous.filter((item) => item.id !== id));
+    void notifyFamilyChange({ module: "shopping", action: "removed", listId: selectedListId });
   };
 
   const clearCompleted = async () => {
@@ -429,6 +433,7 @@ export default function ShoppingListPage() {
     }
 
     setItems((previous) => previous.filter((item) => !item.done));
+    void notifyFamilyChange({ module: "shopping", action: "removed", listId: selectedListId });
   };
 
   const handleCreateList = async (event: FormEvent<HTMLFormElement>) => {

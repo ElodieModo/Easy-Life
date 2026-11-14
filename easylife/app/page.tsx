@@ -335,20 +335,29 @@ function ConnectedHome({
         </div>
       </section>
 
-      <section className="mt-8 bg-white/80 rounded-xl border border-rose-100 p-5 shadow-sm">
+      <section
+        className="mt-8 rounded-xl border border-rose-100 bg-white/80 p-5 shadow-sm"
+        aria-labelledby="notifications-heading"
+        aria-live="polite"
+      >
         <div className="flex items-center justify-between gap-3 mb-3">
-          <h2 className="text-lg font-bold text-slate-800">Notifications utiles</h2>
-          <span className="text-xs text-slate-500">Priorités du jour</span>
+          <div>
+            <h2 id="notifications-heading" className="text-lg font-bold text-slate-800">À suivre</h2>
+            <p className="mt-0.5 text-sm text-slate-600">Alertes et actions utiles pour votre famille</p>
+          </div>
+          <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">Aujourd&apos;hui</span>
         </div>
 
         {summary.notifications.length === 0 ? (
-          <p className="text-sm text-slate-600">Rien d&apos;urgent pour le moment.</p>
+          <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
+            Tout est à jour. Aucune action urgente pour le moment.
+          </p>
         ) : (
           <ul className="space-y-2">
             {summary.notifications.map((notification) => (
               <li
                 key={notification.id}
-                className={`rounded border p-3 ${
+                className={`rounded-lg border p-3 sm:p-4 ${
                   notification.tone === "warning"
                     ? "bg-amber-50 border-amber-200"
                     : notification.tone === "success"
@@ -356,14 +365,19 @@ function ConnectedHome({
                       : "bg-sky-50 border-sky-200"
                 }`}
               >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-3">
+                    <span aria-hidden="true" className="mt-0.5 text-lg">
+                      {notification.tone === "warning" ? "⚠️" : notification.tone === "success" ? "✅" : "ℹ️"}
+                    </span>
+                    <div>
                     <p className="text-sm font-semibold text-slate-800">{notification.title}</p>
                     <p className="text-sm text-slate-600 mt-0.5">{notification.detail}</p>
+                    </div>
                   </div>
                   <Link
                     href={notification.href}
-                    className="text-sm bg-white hover:bg-slate-100 text-slate-700 px-3 py-1.5 rounded border border-slate-200 transition-colors"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 sm:w-auto"
                   >
                     {notification.cta}
                   </Link>

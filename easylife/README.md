@@ -135,6 +135,29 @@ CALENDAR_SYNC_TOKEN=same_value_as_CALENDAR_SYNC_CRON_TOKEN
 
 4. The workflow runs hourly and can be started manually from GitHub Actions.
 
+## Notifications push familiales
+
+Les membres qui activent les notifications dans Paramètres reçoivent une alerte sur cet appareil quand un autre membre ajoute, modifie ou supprime une activité du planning, un article de courses ou une note partagée. Les listes de notes privées et les propres modifications ne déclenchent pas d'alerte.
+
+1. Exécuter `supabase/migration_add_push_subscriptions.sql` dans Supabase SQL Editor.
+2. Générer une paire de clés VAPID:
+
+```bash
+npx web-push generate-vapid-keys
+```
+
+3. Configurer les variables d'environnement sur l'hébergement (et dans `.env.local` en développement):
+
+```env
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_public_vapid_key
+VAPID_PRIVATE_KEY=your_private_vapid_key
+VAPID_SUBJECT=mailto:admin@example.com
+```
+
+La clé privée doit rester secrète. La clé publique doit être disponible pendant le build Next.js; redéployer après l'avoir configurée sur Vercel.
+
+Sur iPhone, utiliser iOS 16.4 ou plus récent et ajouter Easy Life à l'écran d'accueil depuis Safari. Ouvrir ensuite l'app installée et autoriser les notifications dans Paramètres. Chaque téléphone doit activer les notifications séparément.
+
 ## Test sur 2 telephones
 
 Pour tester l'app en meme temps sur deux telephones, utilisez une URL accessible hors de localhost.
