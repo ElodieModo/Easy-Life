@@ -89,6 +89,11 @@
 .app-shell {
   --shell-accent-one: rgba(251, 146, 60, 0.18);
   --shell-accent-two: rgba(45, 212, 191, 0.16);
+  --shell-heading-color: #c2410c;
+  --shell-card-accent: #fb923c;
+  --shell-button-color: #c2410c;
+  --shell-button-hover: #9a3412;
+  --shell-shadow: rgba(194, 65, 12, 0.12);
   min-height: 100dvh;
   background-color: #f8fafc;
   background-image:
@@ -97,44 +102,106 @@
     linear-gradient(135deg, #fffaf0 0%, #f8fafc 58%, #fff7ed 100%);
 }
 
+.app-shell h1 {
+  color: var(--shell-heading-color);
+}
+
+.app-shell .bg-rose-600 {
+  background-color: var(--shell-button-color);
+}
+
+.app-shell .bg-rose-600:hover {
+  background-color: var(--shell-button-hover);
+}
+
+.app-shell .shadow-md {
+  box-shadow:
+    inset 0 4px 0 var(--shell-card-accent),
+    0 8px 24px var(--shell-shadow);
+}
+
 .app-shell--home {
   --shell-accent-one: rgba(251, 191, 36, 0.2);
   --shell-accent-two: rgba(45, 212, 191, 0.2);
+  --shell-heading-color: #9a3412;
+  --shell-card-accent: #f59e0b;
+  --shell-button-color: #c2410c;
+  --shell-button-hover: #9a3412;
+  --shell-shadow: rgba(217, 119, 6, 0.13);
+}
+
+.app-shell--home h1 .text-white {
+  color: #fff;
 }
 
 .app-shell--shopping {
-  --shell-accent-one: rgba(251, 191, 36, 0.24);
-  --shell-accent-two: rgba(251, 113, 133, 0.15);
+  --shell-accent-one: rgba(251, 191, 36, 0.3);
+  --shell-accent-two: rgba(251, 113, 133, 0.2);
+  --shell-heading-color: #92400e;
+  --shell-card-accent: #f59e0b;
+  --shell-button-color: #b45309;
+  --shell-button-hover: #92400e;
+  --shell-shadow: rgba(180, 83, 9, 0.14);
 }
 
 .app-shell--notes {
-  --shell-accent-one: rgba(167, 139, 250, 0.2);
-  --shell-accent-two: rgba(244, 114, 182, 0.16);
+  --shell-accent-one: rgba(167, 139, 250, 0.29);
+  --shell-accent-two: rgba(244, 114, 182, 0.22);
+  --shell-heading-color: #5b21b6;
+  --shell-card-accent: #8b5cf6;
+  --shell-button-color: #6d28d9;
+  --shell-button-hover: #5b21b6;
+  --shell-shadow: rgba(109, 40, 217, 0.14);
 }
 
 .app-shell--planning {
-  --shell-accent-one: rgba(56, 189, 248, 0.2);
-  --shell-accent-two: rgba(251, 191, 36, 0.16);
+  --shell-accent-one: rgba(56, 189, 248, 0.29);
+  --shell-accent-two: rgba(251, 191, 36, 0.21);
+  --shell-heading-color: #075985;
+  --shell-card-accent: #38bdf8;
+  --shell-button-color: #0369a1;
+  --shell-button-hover: #075985;
+  --shell-shadow: rgba(3, 105, 161, 0.14);
 }
 
 .app-shell--calendar {
-  --shell-accent-one: rgba(45, 212, 191, 0.2);
-  --shell-accent-two: rgba(96, 165, 250, 0.18);
+  --shell-accent-one: rgba(45, 212, 191, 0.3);
+  --shell-accent-two: rgba(96, 165, 250, 0.23);
+  --shell-heading-color: #115e59;
+  --shell-card-accent: #2dd4bf;
+  --shell-button-color: #0f766e;
+  --shell-button-hover: #115e59;
+  --shell-shadow: rgba(15, 118, 110, 0.14);
 }
 
 .app-shell--addresses {
-  --shell-accent-one: rgba(52, 211, 153, 0.2);
-  --shell-accent-two: rgba(251, 191, 36, 0.16);
+  --shell-accent-one: rgba(52, 211, 153, 0.3);
+  --shell-accent-two: rgba(251, 191, 36, 0.2);
+  --shell-heading-color: #065f46;
+  --shell-card-accent: #34d399;
+  --shell-button-color: #047857;
+  --shell-button-hover: #065f46;
+  --shell-shadow: rgba(4, 120, 87, 0.14);
 }
 
 .app-shell--settings {
   --shell-accent-one: rgba(251, 191, 36, 0.19);
   --shell-accent-two: rgba(167, 139, 250, 0.17);
+  --shell-heading-color: #9a3412;
+  --shell-card-accent: #f59e0b;
+  --shell-button-color: #c2410c;
+  --shell-button-hover: #9a3412;
+  --shell-shadow: rgba(194, 65, 12, 0.13);
 }
 
 .app-shell--family {
-  --shell-accent-one: rgba(251, 113, 133, 0.18);
-  --shell-accent-two: rgba(96, 165, 250, 0.17);
+  --shell-accent-one: rgba(251, 113, 133, 0.26);
+  --shell-accent-two: rgba(96, 165, 250, 0.22);
+  --shell-heading-color: #9f1239;
+  --shell-card-accent: #fb7185;
+  --shell-button-color: #be123c;
+  --shell-button-hover: #9f1239;
+  --shell-shadow: rgba(190, 18, 60, 0.14);
 }
 
 @supports (padding: max(0px)) {

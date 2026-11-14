@@ -1119,61 +1119,108 @@ export default function ChildrenPlanningPage() {
                   const dayEvents = (eventsByWeekday.get(weekday) ?? []).filter((planningEvent) =>
                     filteredEventsForPlanning.some((item) => item.id === planningEvent.id),
                   );
+                  const hasEvents = dayEvents.length > 0;
 
                   return (
-                    <section key={`mobile-${weekday}`} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
-                      <h3 className="text-sm font-semibold text-slate-800 mb-2">{weekdayLabel[weekday]}</h3>
+                    <section
+                      key={`mobile-${weekday}`}
+                      className={`overflow-hidden rounded-2xl border shadow-sm ${
+                        hasEvents ? "border-sky-200 bg-white" : "border-slate-200 bg-white/75"
+                      }`}
+                    >
+                      <header
+                        className={`flex items-center gap-3 px-4 py-3 ${
+                          hasEvents ? "bg-gradient-to-r from-sky-100 to-cyan-50" : "bg-slate-50"
+                        }`}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-sm font-bold ${
+                            hasEvents ? "bg-sky-600 text-white shadow-sm" : "bg-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {weekdayLabel[weekday].slice(0, 2)}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm font-bold text-slate-800">{weekdayLabel[weekday]}</h3>
+                          <p className="text-xs text-slate-500">Semaine type</p>
+                        </div>
+                        <span
+                          className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                            hasEvents ? "bg-white text-sky-800" : "bg-slate-100 text-slate-500"
+                          }`}
+                        >
+                          {hasEvents ? `${dayEvents.length} activité${dayEvents.length > 1 ? "s" : ""}` : "Libre"}
+                        </span>
+                      </header>
+
                       {dayEvents.length === 0 ? (
-                        <p className="text-xs text-slate-400">Aucune activité</p>
+                        <div className="flex items-center gap-2 px-4 py-4 text-sm text-slate-500">
+                          <span aria-hidden="true">🌿</span>
+                          <p>Aucune activité prévue</p>
+                        </div>
                       ) : (
-                        <ul className="space-y-2">
+                        <ul className="space-y-2.5 p-3">
                           {dayEvents.map((planningEvent) => {
                             const linkedChild = childById.get(planningEvent.childId);
                             const childColor = linkedChild?.color ?? "#94a3b8";
+                            const startDate = new Date(planningEvent.startAt);
+                            const endDate = new Date(planningEvent.endAt);
 
                             return (
                               <li
                                 key={`mobile-card-${planningEvent.id}`}
-                                className="rounded border border-slate-200 bg-white p-2 border-l-4"
+                                className="rounded-xl border border-slate-200 border-l-4 bg-gradient-to-r from-sky-50/70 to-white p-3 shadow-sm"
                                 style={{ borderLeftColor: childColor }}
                               >
-                                <p className="text-xs font-semibold text-slate-800">{planningEvent.title}</p>
-                                <span
-                                  className={`mt-1 inline-block rounded border px-1.5 py-0.5 text-[10px] font-medium ${
-                                    categoryClasses[planningEvent.category]
-                                  }`}
-                                >
-                                  {categoryLabel[planningEvent.category]}
-                                </span>
-                                <p className="text-[11px] text-slate-500 mt-0.5">
-                                  {new Date(planningEvent.startAt).toLocaleTimeString("fr-FR", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                  {" - "}
-                                  {new Date(planningEvent.endAt).toLocaleTimeString("fr-FR", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </p>
-                                <p className="mt-1 text-[11px] text-slate-600">
-                                  {linkedChild?.name ?? "Enfant"}
-                                </p>
-                                {planningEvent.notes ? (
-                                  <p className="mt-1 line-clamp-2 text-[11px] text-slate-500">{planningEvent.notes}</p>
-                                ) : null}
-                                <div className="mt-2 flex items-center gap-2">
+                                <div className="flex gap-3">
+                                  <div className="flex w-16 shrink-0 flex-col items-center justify-center rounded-lg bg-sky-100 px-1 py-2 text-sky-900">
+                                    <time dateTime={planningEvent.startAt} className="text-sm font-bold">
+                                      {startDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                                    </time>
+                                    <span aria-hidden="true" className="my-0.5 h-3 border-l-2 border-sky-300" />
+                                    <time dateTime={planningEvent.endAt} className="text-xs font-medium">
+                                      {endDate.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                                    </time>
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-start justify-between gap-1.5">
+                                      <h4 className="text-sm font-bold leading-5 text-slate-800">{planningEvent.title}</h4>
+                                      <span
+                                        className={`inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                                          categoryClasses[planningEvent.category]
+                                        }`}
+                                      >
+                                        {categoryLabel[planningEvent.category]}
+                                      </span>
+                                    </div>
+                                    <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                                      <span
+                                        aria-hidden="true"
+                                        className="inline-block h-2.5 w-2.5 rounded-full ring-2 ring-white"
+                                        style={{ backgroundColor: childColor }}
+                                      />
+                                      {linkedChild?.name ?? "Enfant"}
+                                    </p>
+                                    {planningEvent.notes ? (
+                                      <p className="mt-1.5 line-clamp-2 text-xs leading-4 text-slate-500">
+                                        {planningEvent.notes}
+                                      </p>
+                                    ) : null}
+                                  </div>
+                                </div>
+                                <div className="mt-3 grid grid-cols-2 gap-2">
                                   <button
                                     type="button"
                                     onClick={() => handleStartEditEvent(planningEvent)}
-                                    className="min-h-10 flex-1 rounded bg-sky-100 px-3 py-2 text-xs font-medium text-sky-700 hover:bg-sky-200"
+                                    className="min-h-11 rounded-lg bg-sky-100 px-3 py-2 text-xs font-semibold text-sky-800 transition-colors hover:bg-sky-200"
                                   >
                                     Modifier
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => void handleDeleteEvent(planningEvent.id)}
-                                    className="min-h-10 flex-1 rounded bg-rose-100 px-3 py-2 text-xs font-medium text-rose-700 hover:bg-rose-200"
+                                    className="min-h-11 rounded-lg bg-rose-100 px-3 py-2 text-xs font-semibold text-rose-800 transition-colors hover:bg-rose-200"
                                   >
                                     Supprimer
                                   </button>
