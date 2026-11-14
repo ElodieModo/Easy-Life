@@ -16,9 +16,7 @@ export function Navbar() {
     { href: "/protected/liste-courses", label: "Courses", icon: "🛒" },
     { href: "/protected/notes", label: "Notes", icon: "📝" },
     { href: "/protected/planning-enfants", label: "Planning", icon: "👧" },
-    { href: "/protected/calendrier-externe", label: "Calendrier partagé", icon: "📅" },
     { href: "/protected/adresses-utiles", label: "Adresses", icon: "📍" },
-    { href: "/protected/menu-semaine", label: "Menu", icon: "🍽️" },
   ];
 
   const handleRefresh = () => {
@@ -70,14 +68,8 @@ export function Navbar() {
             <Link href="/protected/notes" className="transition-colors hover:text-orange-700">
               Notes
             </Link>
-            <Link href="/protected/menu-semaine" className="transition-colors hover:text-orange-700">
-              Menu de la semaine
-            </Link>
             <Link href="/protected/planning-enfants" className="hover:text-sky-700 transition-colors">
               Planning
-            </Link>
-            <Link href="/protected/calendrier-externe" className="hover:text-sky-700 transition-colors">
-              Calendrier partagé
             </Link>
             <Link href="/protected/adresses-utiles" className="hover:text-sky-700 transition-colors">
               Adresses utiles
@@ -147,7 +139,7 @@ export function Navbar() {
             {isRefreshing ? "Actualisation..." : "🔄 Actualiser"}
           </button>
 
-          <div className="mt-2 flex snap-x items-center gap-2 overflow-x-auto pb-1 whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="mt-2 grid grid-cols-4 gap-1 rounded-xl border border-orange-200 bg-white/90 p-1 shadow-sm">
             {mobileTabs.map((tab) => {
               const isActive = pathname === tab.href || pathname?.startsWith(`${tab.href}/`);
 
@@ -156,14 +148,14 @@ export function Navbar() {
                   key={tab.href}
                   href={tab.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`inline-flex min-h-11 shrink-0 snap-start items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors active:scale-[0.98] ${
+                  className={`inline-flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1 text-[11px] font-semibold transition-colors active:scale-[0.98] sm:text-xs ${
                     isActive
-                      ? "border-orange-300 bg-orange-100 text-orange-900 shadow-sm"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-orange-300 hover:text-slate-800 active:border-orange-300 active:bg-orange-100 active:text-orange-900"
+                      ? "bg-orange-100 text-orange-900"
+                      : "text-slate-600 hover:bg-orange-50 hover:text-slate-800 active:bg-orange-100 active:text-orange-900"
                   }`}
                 >
-                  <span aria-hidden="true">{tab.icon}</span>
-                  <span>{tab.label}</span>
+                  <span aria-hidden="true" className="text-base">{tab.icon}</span>
+                  <span className="truncate">{tab.label}</span>
                 </Link>
               );
             })}

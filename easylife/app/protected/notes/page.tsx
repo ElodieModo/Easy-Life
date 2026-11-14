@@ -473,7 +473,9 @@ export default function NotesPage() {
           ) : !selectedListId ? (
             <p className="text-slate-500">Créez une première liste de notes pour commencer.</p>
           ) : items.length === 0 ? (
-            <p className="text-slate-500">Aucun élément dans cette liste.</p>
+            <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">
+              Cette liste est vide. Utilisez le champ ci-dessus pour ajouter votre première note.
+            </p>
           ) : (
             <>
               <ul className="space-y-3">

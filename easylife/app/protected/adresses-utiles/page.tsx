@@ -253,7 +253,10 @@ export default function UsefulAddressesPage() {
           {isLoading ? (
             <p className="text-slate-500">Chargement des adresses...</p>
           ) : addresses.length === 0 ? (
-            <p className="text-slate-500">Aucune adresse pour le moment.</p>
+            <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+              <p className="font-medium text-slate-700">Aucune adresse enregistrée pour le moment.</p>
+              <p className="mt-1 text-sm text-slate-600">Ajoutez la première avec le formulaire juste en dessous.</p>
+            </div>
           ) : (
             <ul className="space-y-3">
               {addresses.map((entry) => (

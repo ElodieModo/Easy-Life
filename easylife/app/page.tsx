@@ -167,27 +167,35 @@ function ConnectedHome({
 }) {
   return (
     <>
-      <section className="bg-white/80 backdrop-blur rounded-2xl border border-rose-100 shadow-sm p-8 md:p-10">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 flex flex-wrap items-center gap-2 sm:gap-3">
-          <span className="w-full sm:w-auto">Bienvenue sur</span>
-          <Image
-            src="/easy-life-logo-v2.svg"
-            alt="Logo Easy Life"
-            width={38}
-            height={38}
-            className="h-9 w-9 md:h-10 md:w-10 rounded-xl shadow-sm"
-            priority
-          />
-          <span className="inline-flex items-center rounded-full px-3 sm:px-4 py-1 text-sm sm:text-base md:text-lg font-black tracking-wide text-white bg-gradient-to-r from-rose-600 via-fuchsia-500 to-orange-500 shadow-sm">
-            EASY LIFE
-          </span>
-        </h1>
-        <p className="mt-3 text-slate-600">Connecté en tant que <span className="font-medium">{email}</span></p>
+      <section className="rounded-2xl border border-rose-100 bg-white/80 p-5 shadow-sm backdrop-blur sm:p-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-rose-700">Tableau de bord</p>
+            <h1 className="mt-1 text-2xl font-extrabold text-slate-800 sm:text-3xl">Bienvenue sur Easy Life</h1>
+            <p className="mt-2 text-sm text-slate-600 sm:text-base">
+              {summary.hasFamily
+                ? "Retrouvez les outils de votre famille et les informations importantes du jour."
+                : "Configurez votre espace familial pour commencer."}
+            </p>
+          </div>
+          <p className="text-sm text-slate-600">
+            Connecté en tant que <span className="font-medium text-slate-800">{email}</span>
+          </p>
+        </div>
+      </section>
 
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-6 gap-4">
+      {summary.hasFamily ? (
+        <>
+      <section className="mt-8" aria-labelledby="quick-access-heading">
+        <div className="mb-4">
+          <h2 id="quick-access-heading" className="text-xl font-bold text-slate-800">Accès rapides</h2>
+          <p className="mt-1 text-sm text-slate-600">Choisissez un espace pour commencer.</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
           <Link
             href="/protected/liste-courses"
-            className="rounded-xl bg-white border border-slate-200 hover:border-rose-200 p-5 transition-colors"
+            className="group min-h-32 rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 sm:p-5"
           >
             <p className="text-2xl">🛒</p>
             <p className="font-semibold mt-2 text-slate-800">Courses</p>
@@ -196,7 +204,7 @@ function ConnectedHome({
 
           <Link
             href="/protected/planning-enfants"
-            className="rounded-xl bg-white border border-slate-200 hover:border-rose-200 p-5 transition-colors"
+            className="group min-h-32 rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 sm:p-5"
           >
             <p className="text-2xl">👧</p>
             <p className="font-semibold mt-2 text-slate-800">Planning enfants</p>
@@ -205,7 +213,7 @@ function ConnectedHome({
 
           <Link
             href="/protected/menu-semaine"
-            className="rounded-xl bg-white border border-slate-200 hover:border-rose-200 p-5 transition-colors"
+            className="group min-h-32 rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 sm:p-5"
           >
             <p className="text-2xl">🍽️</p>
             <p className="font-semibold mt-2 text-slate-800">Menu de la semaine</p>
@@ -214,7 +222,7 @@ function ConnectedHome({
 
           <Link
             href="/protected/adresses-utiles"
-            className="rounded-xl bg-white border border-slate-200 hover:border-rose-200 p-5 transition-colors"
+            className="group min-h-32 rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 sm:p-5"
           >
             <p className="text-2xl">📍</p>
             <p className="font-semibold mt-2 text-slate-800">Adresses utiles</p>
@@ -223,7 +231,7 @@ function ConnectedHome({
 
           <Link
             href="/protected/calendrier-externe"
-            className="rounded-xl bg-white border border-slate-200 hover:border-rose-200 p-5 transition-colors"
+            className="group min-h-32 rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 sm:p-5"
           >
             <p className="text-2xl">📅</p>
             <p className="font-semibold mt-2 text-slate-800">Calendrier partagé</p>
@@ -232,7 +240,7 @@ function ConnectedHome({
 
           <Link
             href="/protected/notes"
-            className="rounded-xl bg-white border border-slate-200 hover:border-rose-200 p-5 transition-colors"
+            className="group min-h-32 rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 sm:p-5"
           >
             <p className="text-2xl">📝</p>
             <p className="font-semibold mt-2 text-slate-800">Notes</p>
@@ -241,7 +249,7 @@ function ConnectedHome({
 
           <Link
             href="/protected/parametres"
-            className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white p-5 transition-colors"
+            className="min-h-32 rounded-xl bg-rose-600 p-4 text-white transition hover:-translate-y-0.5 hover:bg-rose-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 sm:p-5"
           >
             <p className="text-2xl">⚙️</p>
             <p className="font-semibold mt-2">Paramètres</p>
@@ -250,7 +258,12 @@ function ConnectedHome({
         </div>
       </section>
 
-      <section className="mt-8 grid lg:grid-cols-5 gap-4">
+      <section className="mt-8" aria-labelledby="today-overview-heading">
+        <div className="mb-4">
+          <h2 id="today-overview-heading" className="text-xl font-bold text-slate-800">Vue d&apos;ensemble</h2>
+          <p className="mt-1 text-sm text-slate-600">Les éléments à suivre aujourd&apos;hui.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <article className="bg-white/80 rounded-xl border border-rose-100 p-5 shadow-sm">
           <p className="text-sm text-slate-500">Aujourd&apos;hui - Planning enfants</p>
           <p className="mt-1 text-3xl font-bold text-slate-800">{summary.todayPlanningCount}</p>
@@ -270,7 +283,15 @@ function ConnectedHome({
                 </li>
               ))}
             </ul>
-          ) : null}
+          ) : (
+            <p className="mt-3 text-sm text-slate-500">Aucune activité prévue aujourd&apos;hui.</p>
+          )}
+          <Link
+            href="/protected/planning-enfants"
+            className="mt-4 inline-flex min-h-10 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+          >
+            Ouvrir le planning
+          </Link>
         </article>
 
         <article className="bg-white/80 rounded-xl border border-rose-100 p-5 shadow-sm">
@@ -286,7 +307,15 @@ function ConnectedHome({
                 </li>
               ))}
             </ul>
-          ) : null}
+          ) : (
+            <p className="mt-3 text-sm text-slate-500">Aucun événement prévu dans les prochaines 24 heures.</p>
+          )}
+          <Link
+            href="/protected/calendrier-externe"
+            className="mt-4 inline-flex min-h-10 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+          >
+            Ouvrir le calendrier
+          </Link>
         </article>
 
         <article className="bg-white/80 rounded-xl border border-rose-100 p-5 shadow-sm">
@@ -324,6 +353,7 @@ function ConnectedHome({
             Ouvrir le menu
           </Link>
         </article>
+        </div>
       </section>
 
       <section className="mt-8 bg-white/80 rounded-xl border border-rose-100 p-5 shadow-sm">
@@ -364,6 +394,62 @@ function ConnectedHome({
           </ul>
         )}
       </section>
+        </>
+      ) : (
+        <section
+          className="mt-8 rounded-2xl border border-orange-200 bg-white p-5 shadow-sm sm:p-8"
+          aria-labelledby="getting-started-heading"
+        >
+          <div className="flex items-start gap-3 sm:gap-4">
+            <span aria-hidden="true" className="text-3xl">👋</span>
+            <div>
+              <h2 id="getting-started-heading" className="text-xl font-bold text-slate-800 sm:text-2xl">
+                Pour commencer, créez ou rejoignez votre famille
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
+                Votre espace familial permet de partager les listes, les notes et les plannings.
+                Choisissez l&apos;option qui vous correspond.
+              </p>
+            </div>
+          </div>
+
+          <ol className="mt-6 grid gap-3 sm:grid-cols-3">
+            <li className="rounded-xl border border-orange-100 bg-orange-50/70 p-4">
+              <p className="font-semibold text-slate-800"><span className="mr-2 text-orange-700">1.</span>Créer ou rejoindre</p>
+              <p className="mt-1 text-sm text-slate-600">
+                Créez un espace ou collez le lien d&apos;invitation reçu.
+              </p>
+            </li>
+            <li className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <p className="font-semibold text-slate-800"><span className="mr-2 text-orange-700">2.</span>Inviter vos proches</p>
+              <p className="mt-1 text-sm text-slate-600">
+                Une fois la famille créée, générez un lien depuis « Ma famille ».
+              </p>
+            </li>
+            <li className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <p className="font-semibold text-slate-800"><span className="mr-2 text-orange-700">3.</span>Configurer les outils</p>
+              <p className="mt-1 text-sm text-slate-600">
+                Ajoutez les enfants et réglez le calendrier selon vos besoins.
+              </p>
+            </li>
+          </ol>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              href="/protected/parametres/ma-famille"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-rose-600 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
+            >
+              Configurer ma famille
+            </Link>
+            <Link
+              href="/protected/parametres"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
+            >
+              Voir les paramètres
+            </Link>
+          </div>
+        </section>
+      )}
     </>
   );
 }
