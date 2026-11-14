@@ -84,7 +84,7 @@ function InvitationContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100 flex items-center justify-center p-6">
+    <div className="app-shell app-shell--family flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6 sm:p-8">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-3xl">🏠</span>
@@ -153,7 +153,7 @@ export default function InvitationPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100 flex items-center justify-center p-6">
+        <div className="app-shell app-shell--family flex items-center justify-center p-6">
           <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6 sm:p-8 text-slate-400 animate-pulse">
             Chargement de l&apos;invitation…
           </div>

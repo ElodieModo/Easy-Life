@@ -682,7 +682,7 @@ export default function ChildrenPlanningPage() {
   }, [events]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100">
+    <div className="app-shell app-shell--planning">
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 flex flex-col gap-6 sm:gap-8">

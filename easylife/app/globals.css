@@ -86,6 +86,57 @@
   }
 }
 
+.app-shell {
+  --shell-accent-one: rgba(251, 146, 60, 0.18);
+  --shell-accent-two: rgba(45, 212, 191, 0.16);
+  min-height: 100dvh;
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(circle at 0% 0%, var(--shell-accent-one), transparent 36%),
+    radial-gradient(circle at 100% 8%, var(--shell-accent-two), transparent 38%),
+    linear-gradient(135deg, #fffaf0 0%, #f8fafc 58%, #fff7ed 100%);
+}
+
+.app-shell--home {
+  --shell-accent-one: rgba(251, 191, 36, 0.2);
+  --shell-accent-two: rgba(45, 212, 191, 0.2);
+}
+
+.app-shell--shopping {
+  --shell-accent-one: rgba(251, 191, 36, 0.24);
+  --shell-accent-two: rgba(251, 113, 133, 0.15);
+}
+
+.app-shell--notes {
+  --shell-accent-one: rgba(167, 139, 250, 0.2);
+  --shell-accent-two: rgba(244, 114, 182, 0.16);
+}
+
+.app-shell--planning {
+  --shell-accent-one: rgba(56, 189, 248, 0.2);
+  --shell-accent-two: rgba(251, 191, 36, 0.16);
+}
+
+.app-shell--calendar {
+  --shell-accent-one: rgba(45, 212, 191, 0.2);
+  --shell-accent-two: rgba(96, 165, 250, 0.18);
+}
+
+.app-shell--addresses {
+  --shell-accent-one: rgba(52, 211, 153, 0.2);
+  --shell-accent-two: rgba(251, 191, 36, 0.16);
+}
+
+.app-shell--settings {
+  --shell-accent-one: rgba(251, 191, 36, 0.19);
+  --shell-accent-two: rgba(167, 139, 250, 0.17);
+}
+
+.app-shell--family {
+  --shell-accent-one: rgba(251, 113, 133, 0.18);
+  --shell-accent-two: rgba(96, 165, 250, 0.17);
+}
+
 @supports (padding: max(0px)) {
   body {
     padding-left: max(0.75rem, env(safe-area-inset-left));

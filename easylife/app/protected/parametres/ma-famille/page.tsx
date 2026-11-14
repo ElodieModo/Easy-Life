@@ -278,7 +278,7 @@ export default function FamilySettingsPage() {
 	const canInvite = currentUserRole === "owner" || currentUserRole === "admin";
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-slate-100">
+		<div className="app-shell app-shell--family">
 			<Navbar />
 
 			<div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-6 sm:space-y-8">
