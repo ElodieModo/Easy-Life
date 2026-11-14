@@ -7,6 +7,7 @@ type SyncBody = {
 
 type ParsedIcsEvent = {
   uid?: string;
+  recurrenceId?: string;
   summary?: string;
   description?: string;
   location?: string;
@@ -155,6 +156,8 @@ const parseIcsEvents = (content: string): ParseIcsResult => {
 
     if (upperKey === "UID") {
       current.uid = rawValue.trim();
+    } else if (upperKey === "RECURRENCE-ID") {
+      current.recurrenceId = rawValue.trim();
     } else if (upperKey === "SUMMARY") {
       current.summary = unescapeIcsText(rawValue.trim());
     } else if (upperKey === "DESCRIPTION") {
@@ -210,7 +213,7 @@ const syncConnection = async (connection: CalendarConnectionRow) => {
   const parsedResult = parseIcsEvents(icsContent);
   const parsedEvents = parsedResult.events;
 
-  const upsertRows: Array<{
+  const upsertRowsByExternalId = new Map<string, {
     family_id: string;
     connection_id: string;
     external_id: string;
@@ -223,19 +226,21 @@ const syncConnection = async (connection: CalendarConnectionRow) => {
     source_updated_at: string | null;
     raw_payload: Record<string, unknown>;
     updated_at: string;
-  }> = [];
+  }>();
 
   for (const event of parsedEvents) {
     if (!(event.start instanceof Date)) {
       continue;
     }
 
-    const externalId =
-      event.uid && event.uid.trim().length > 0
-        ? event.uid
-        : `${event.summary ?? "event"}-${event.start.toISOString()}`;
+    const uid = event.uid?.trim();
+    const externalId = uid
+      ? event.recurrenceId
+        ? `${uid}::${event.recurrenceId}`
+        : uid
+      : `${event.summary ?? "event"}-${event.start.toISOString()}`;
 
-    upsertRows.push({
+    upsertRowsByExternalId.set(externalId, {
       family_id: connection.family_id,
       connection_id: connection.id,
       external_id: externalId,
@@ -249,6 +254,7 @@ const syncConnection = async (connection: CalendarConnectionRow) => {
       raw_payload:
         (toJsonSafeValue({
           uid: event.uid ?? null,
+          recurrenceId: event.recurrenceId ?? null,
           summary: event.summary ?? null,
           description: event.description ?? null,
           location: event.location ?? null,
@@ -260,6 +266,7 @@ const syncConnection = async (connection: CalendarConnectionRow) => {
       updated_at: new Date().toISOString(),
     });
   }
+  const upsertRows = Array.from(upsertRowsByExternalId.values());
 
   if (upsertRows.length > 0) {
     const { error: upsertError } = await supabase
